@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ride Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🚗 RIDE HUB</h1>
+
+        <p>Compare Rapido, Uber and Ola rides in one place</p>
+
+        <form action="/compare" method="POST">
+
+            <label>Source</label>
+            <input type="text"
+                   name="source"
+                   placeholder="Enter pickup location"
+                   required>
+
+            <label>Destination</label>
+            <input type="text"
+                   name="destination"
+                   placeholder="Enter destination"
+                   required>
+
+            <label>Vehicle Type</label>
+
+            <select name="vehicle">
+                <option value="Bike">Bike</option>
+                <option value="Auto">Auto</option>
+                <option value="Car">Car</option>
+            </select>
+
+            <button type="submit">
+                Compare Rides
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+</html>
