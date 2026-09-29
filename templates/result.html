@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ride Comparison - Ride Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🚗 Ride Comparison</h1>
+
+        <p>
+            Compare Rapido, Uber and Ola
+        </p>
+
+        <table border="1" width="100%" cellpadding="10">
+
+            <tr>
+                <th>Company</th>
+                <th>Vehicle</th>
+                <th>Price</th>
+                <th>Time</th>
+                <th>Rating</th>
+            </tr>
+
+            <tr>
+                <td>Rapido</td>
+                <td>{{ vehicle }}</td>
+                <td>{{rapido_price}}</td>
+                <td>18min</td>
+                <td>{{rapido_rating}}</td>
+            </tr>
+
+            <tr>
+                <td>Uber</td>
+                <td>{{ vehicle }}</td>
+                <td>{{uber_price}}</td>
+                <td>20 min</td>
+                <td>{{uber_rating}}</td>
+            </tr>
+
+            <tr>
+                <td>Ola</td>
+                <td>{{ vehicle }}</td>
+                <td>{{ola_price}}</td>
+                <td>19 min</td>
+                <td>{{ola_rating}}</td>
+            </tr>
+
+        </table>
+
+        <br>
+        <h2>Best ride recommendation</h2>
+        <p><b>Best Ride:</b>{{best_ride}}</p>
+        <h3>🏆 Best Overall: Rapido</h3>
+        <h3>💰 Lowest Price: Rapido</h3>
+        <h3>⚡ Fastest: Rapido</h3>
+        <h3>⭐ Highest Rating: Uber</h3>
+
+        <br>
+
+        <button onclick="window.location.href='/'">
+            Compare Again
+        </button>
+
+    </div>
+
+</body>
+</html>

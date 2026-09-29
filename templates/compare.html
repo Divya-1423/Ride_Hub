@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ride Comparison</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 25px;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Ride Comparison</h1>
+
+    <form method="POST" action="/compare">
+
+        <label for="source">Source</label>
+
+        <select name="source" id="source" required>
+
+            <option value="">Select Source</option>
+
+            {% for source in sources %}
+                <option value="{{ source }}">
+                    {{ source }}
+                </option>
+            {% endfor %}
+
+        </select>
+
+
+        <label for="destination">Destination</label>
+
+        <select name="destination" id="destination" required>
+
+            <option value="">Select Destination</option>
+
+            {% for destination in destinations %}
+                <option value="{{ destination }}">
+                    {{ destination }}
+                </option>
+            {% endfor %}
+
+        </select>
+
+
+        <label for="vehicle_type">Vehicle Type</label>
+
+        <select name="vehicle_type" id="vehicle_type" required>
+
+            <option value="">Select Vehicle Type</option>
+
+            {% for vehicle in vehicle_types %}
+                <option value="{{ vehicle }}">
+                    {{ vehicle }}
+                </option>
+            {% endfor %}
+
+        </select>
+
+
+        <button type="submit">
+            Compare Ride
+        </button>
+
+    </form>
+
+
+    {% if message %}
+
+        <div class="message">
+            {{ message }}
+        </div>
+
+    {% endif %}
+
+
+    {% if results %}
+
+        <h2>Ride Details</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+
+                    {% for key in results[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for row in results %}
+
+                    <tr>
+
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>s

@@ -1,0 +1,1785 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>RideHub - Ride Comparison</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #555;
+        }
+
+        .location-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .location-btn:hover {
+            background: #444;
+        }
+
+        .compare-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #1677ff;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .compare-btn:hover {
+            background: #095ec9;
+        }
+
+        #message {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: 10px;
+            background: #f1f3f5;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            margin-top: 0;
+            font-size: 16px;
+        }
+
+        .summary-card p {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-top: 35px;
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #222;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .suggestion {
+            margin-top: 30px;
+            padding: 22px;
+            background: #eef6ff;
+            border-left: 5px solid #1677ff;
+            border-radius: 8px;
+        }
+
+        .suggestion h2 {
+            margin-top: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .best-option {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f1f8ff;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 800px) {
+
+            .container {
+                width: 96%;
+                padding: 20px;
+            }
+
+            .summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🚕 RideHub - Ride Comparison</h1>
+
+        <div class="form-group">
+
+            <label for="source">Source</label>
+
+            <input
+                type="text"
+                id="source"
+                placeholder="Enter source location"
+            >
+
+            <button
+                type="button"
+                class="location-btn"
+                id="locationBtn"
+            >
+                📍 Use My Live Location
+            </button>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="destination">
+                Destination
+            </label>
+
+            <input
+                type="text"
+                id="destination"
+                placeholder="Enter destination location"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="vehicleType">
+                Vehicle Type
+            </label>
+
+            <select id="vehicleType">
+
+                <option value="All">
+                    All Vehicles
+                </option>
+
+                <option value="Bike">
+                    Bike
+                </option>
+
+                <option value="Auto">
+                    Auto
+                </option>
+
+                <option value="Car">
+                    Car
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="compare-btn"
+            id="compareBtn"
+        >
+            🔍 Compare Rides
+        </button>
+
+
+        <div id="message"></div>
+
+
+        <div id="results" class="hidden">
+
+
+            <div class="summary">
+
+
+                <div class="summary-card">
+
+                    <h3>💰 Cheapest</h3>
+
+                    <p id="cheapestResult">
+                        -
+                    </p>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <h3>⚡ Fastest</h3>
+
+                    <p id="fastestResult">
+                        -
+                    </p>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <h3>⭐ Highest Rating</h3>
+
+                    <p id="ratingResult">
+                        -
+                    </p>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <h3>💬 Most Reviews</h3>
+
+                    <p id="reviewsResult">
+                        -
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="section">
+
+                <h2>🚕 Ride Comparison</h2>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Platform</th>
+                                <th>Vehicle</th>
+                                <th>Price</th>
+                                <th>Distance</th>
+                                <th>Duration</th>
+                                <th>Rating</th>
+                                <th>Reviews</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="rideTableBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="section">
+
+                <h2>📊 Platform Comparison</h2>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Platform</th>
+                                <th>Average Price</th>
+                                <th>Average Duration</th>
+                                <th>Average Rating</th>
+                                <th>Total Reviews</th>
+                                <th>Ride Score</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="platformTableBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="suggestion">
+
+                <h2>
+                    💡 Overall Suggestion
+                </h2>
+
+                <p id="overallSuggestion">
+                    Compare rides to see the suggestion.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+    <script>
+
+    /* =========================
+       GET HTML ELEMENTS
+    ========================= */
+
+    var sourceInput =
+        document.getElementById("source");
+
+    var destinationInput =
+        document.getElementById("destination");
+
+    var vehicleTypeInput =
+        document.getElementById("vehicleType");
+
+    var locationBtn =
+        document.getElementById("locationBtn");
+
+    var compareBtn =
+        document.getElementById("compareBtn");
+
+    var message =
+        document.getElementById("message");
+
+    var results =
+        document.getElementById("results");
+
+    var rideTableBody =
+        document.getElementById("rideTableBody");
+
+    var platformTableBody =
+        document.getElementById("platformTableBody");
+
+    var cheapestResult =
+        document.getElementById("cheapestResult");
+
+    var fastestResult =
+        document.getElementById("fastestResult");
+
+    var ratingResult =
+        document.getElementById("ratingResult");
+
+    var reviewsResult =
+        document.getElementById("reviewsResult");
+
+    var overallSuggestion =
+        document.getElementById("overallSuggestion");
+
+
+    /* =========================
+       LIVE LOCATION
+    ========================= */
+
+    locationBtn.addEventListener(
+        "click",
+        function () {
+
+            message.textContent =
+                "Getting your exact location...";
+
+            if (!navigator.geolocation) {
+
+                message.textContent =
+                    "Geolocation is not supported by this browser.";
+
+                return;
+            }
+
+            locationBtn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+
+                function (position) {
+
+                    var latitude =
+                        position.coords.latitude;
+
+                    var longitude =
+                        position.coords.longitude;
+
+
+                    var url =
+                        "https://nominatim.openstreetmap.org/reverse" +
+                        "?format=jsonv2" +
+                        "&lat=" + latitude +
+                        "&lon=" + longitude +
+                        "&zoom=18" +
+                        "&addressdetails=1";
+
+
+                    fetch(url)
+
+                        .then(function (response) {
+
+                            if (!response.ok) {
+
+                                throw new Error(
+                                    "Address lookup failed"
+                                );
+
+                            }
+
+                            return response.json();
+
+                        })
+
+                        .then(function (data) {
+
+                            var address =
+                                data.address || {};
+
+                            var parts = [];
+
+
+                            if (address.building) {
+
+                                parts.push(
+                                    address.building
+                                );
+
+                            }
+
+
+                            if (address.house_name) {
+
+                                parts.push(
+                                    address.house_name
+                                );
+
+                            }
+
+
+                            if (address.house_number) {
+
+                                parts.push(
+                                    address.house_number
+                                );
+
+                            }
+
+
+                            if (address.road) {
+
+                                parts.push(
+                                    address.road
+                                );
+
+                            }
+
+
+                            if (address.neighbourhood) {
+
+                                parts.push(
+                                    address.neighbourhood
+                                );
+
+                            }
+
+
+                            if (address.suburb) {
+
+                                parts.push(
+                                    address.suburb
+                                );
+
+                            }
+
+
+                            var city =
+                                address.city ||
+                                address.town ||
+                                address.village ||
+                                "Visakhapatnam";
+
+
+                            parts.push(city);
+
+
+                            if (parts.length > 0) {
+
+                                sourceInput.value =
+                                    parts.join(", ");
+
+                            } else {
+
+                                sourceInput.value =
+                                    "Visakhapatnam";
+
+                            }
+
+
+                            message.textContent =
+                                "Exact address detected.";
+
+                        })
+
+                        .catch(function () {
+
+                            sourceInput.value =
+                                "Visakhapatnam (" +
+                                latitude.toFixed(6) +
+                                ", " +
+                                longitude.toFixed(6) +
+                                ")";
+
+
+                            message.textContent =
+                                "Address name unavailable. GPS location detected.";
+
+                        })
+
+                        .finally(function () {
+
+                            locationBtn.disabled = false;
+
+                        });
+
+                },
+
+
+                function (error) {
+
+                    locationBtn.disabled = false;
+
+
+                    if (error.code === 1) {
+
+                        message.textContent =
+                            "Please allow location permission.";
+
+                    }
+
+                    else if (error.code === 2) {
+
+                        message.textContent =
+                            "Unable to detect your location.";
+
+                    }
+
+                    else if (error.code === 3) {
+
+                        message.textContent =
+                            "Location request timed out.";
+
+                    }
+
+                    else {
+
+                        message.textContent =
+                            "Unable to get your location.";
+
+                    }
+
+                },
+
+
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+
+            );
+
+        }
+    );
+
+
+    /* =========================
+       RIDE DATA
+    ========================= */
+
+    var rideData = [
+
+        {
+            platform: "Uber",
+            vehicle: "Bike",
+            basePrice: 40,
+            perKm: 9,
+            speed: 35,
+            rating: 4.5,
+            reviews: 1250
+        },
+
+        {
+            platform: "Uber",
+            vehicle: "Auto",
+            basePrice: 60,
+            perKm: 13,
+            speed: 30,
+            rating: 4.4,
+            reviews: 1100
+        },
+
+        {
+            platform: "Uber",
+            vehicle: "Car",
+            basePrice: 100,
+            perKm: 18,
+            speed: 32,
+            rating: 4.6,
+            reviews: 1500
+        },
+
+
+        {
+            platform: "Rapido",
+            vehicle: "Bike",
+            basePrice: 35,
+            perKm: 8,
+            speed: 38,
+            rating: 4.3,
+            reviews: 1350
+        },
+
+        {
+            platform: "Rapido",
+            vehicle: "Auto",
+            basePrice: 55,
+            perKm: 12,
+            speed: 31,
+            rating: 4.2,
+            reviews: 980
+        },
+
+        {
+            platform: "Rapido",
+            vehicle: "Car",
+            basePrice: 95,
+            perKm: 17,
+            speed: 33,
+            rating: 4.4,
+            reviews: 1200
+        },
+
+
+        {
+            platform: "Ola",
+            vehicle: "Bike",
+            basePrice: 38,
+            perKm: 8.5,
+            speed: 36,
+            rating: 4.2,
+            reviews: 1150
+        },
+
+        {
+            platform: "Ola",
+            vehicle: "Auto",
+            basePrice: 58,
+            perKm: 12.5,
+            speed: 29,
+            rating: 4.3,
+            reviews: 1050
+        },
+
+        {
+            platform: "Ola",
+            vehicle: "Car",
+            basePrice: 98,
+            perKm: 17.5,
+            speed: 31,
+            rating: 4.5,
+            reviews: 1400
+        }
+
+    ];
+
+
+    /* =========================
+       DISTANCE CALCULATION
+    ========================= */
+
+    function calculateDistance(
+        source,
+        destination
+    ) {
+
+        var text =
+            (
+                source +
+                " " +
+                destination
+            ).toLowerCase();
+
+
+        if (
+            text.includes("airport") ||
+            text.includes("visakhapatnam airport")
+        ) {
+
+            return 18;
+
+        }
+
+
+        if (text.includes("gajuwaka")) {
+
+            return 12;
+
+        }
+
+
+        if (text.includes("madhurawada")) {
+
+            return 16;
+
+        }
+
+
+        if (text.includes("rushikonda")) {
+
+            return 14;
+
+        }
+
+
+        if (text.includes("anakapalle")) {
+
+            return 28;
+
+        }
+
+
+        if (text.includes("bypass")) {
+
+            return 10;
+
+        }
+
+
+        if (
+            text.includes("beach") ||
+            text.includes("rk beach")
+        ) {
+
+            return 8;
+
+        }
+
+
+        if (
+            text.includes("railway station") ||
+            text.includes("railway")
+        ) {
+
+            return 6;
+
+        }
+
+
+        if (
+            text.includes("bus stand") ||
+            text.includes("rtc complex")
+        ) {
+
+            return 5;
+
+        }
+
+
+        if (text.includes("mvp colony")) {
+
+            return 9;
+
+        }
+
+
+        if (text.includes("dwaraka nagar")) {
+
+            return 6;
+
+        }
+
+
+        if (text.includes("seethammadhara")) {
+
+            return 8;
+
+        }
+
+
+        if (text.includes("nad junction")) {
+
+            return 10;
+
+        }
+
+
+        if (text.includes("kurmannapalem")) {
+
+            return 15;
+
+        }
+
+
+        return 10;
+
+    }
+
+
+    /* =========================
+       RIDE CALCULATION
+    ========================= */
+
+    function calculateRideDetails(
+        ride,
+        distance
+    ) {
+
+        var price =
+            ride.basePrice +
+            (
+                ride.perKm *
+                distance
+            );
+
+
+        var duration =
+            Math.ceil(
+                (
+                    distance /
+                    ride.speed
+                ) * 60
+            );
+
+
+        return {
+
+            platform: ride.platform,
+
+            vehicle: ride.vehicle,
+
+            price: Math.round(price),
+
+            distance: distance,
+
+            duration: duration,
+
+            rating: ride.rating,
+
+            reviews: ride.reviews
+
+        };
+
+    }
+
+
+    /* =========================
+       FILTER RIDES
+    ========================= */
+
+    function getFilteredRides() {
+
+        var selectedVehicle =
+            vehicleTypeInput.value;
+
+
+        if (selectedVehicle === "All") {
+
+            return rideData;
+
+        }
+
+
+        return rideData.filter(
+            function (ride) {
+
+                return ride.vehicle ===
+                    selectedVehicle;
+
+            }
+        );
+
+    }
+    /* =========================
+       RIDE SCORE
+    ========================= */
+
+    function calculateRideScore(
+        ride,
+        allRides
+    ) {
+
+        var prices =
+            allRides.map(
+                function (item) {
+                    return item.price;
+                }
+            );
+
+        var durations =
+            allRides.map(
+                function (item) {
+                    return item.duration;
+                }
+            );
+
+        var ratings =
+            allRides.map(
+                function (item) {
+                    return item.rating;
+                }
+            );
+
+        var reviews =
+            allRides.map(
+                function (item) {
+                    return item.reviews;
+                }
+            );
+
+
+        var minPrice =
+            Math.min.apply(null, prices);
+
+        var maxPrice =
+            Math.max.apply(null, prices);
+
+
+        var minDuration =
+            Math.min.apply(null, durations);
+
+        var maxDuration =
+            Math.max.apply(null, durations);
+
+
+        var minRating =
+            Math.min.apply(null, ratings);
+
+        var maxRating =
+            Math.max.apply(null, ratings);
+
+
+        var minReviews =
+            Math.min.apply(null, reviews);
+
+        var maxReviews =
+            Math.max.apply(null, reviews);
+
+
+        var priceScore = 50;
+
+        if (maxPrice !== minPrice) {
+
+            priceScore =
+                (
+                    (maxPrice - ride.price) /
+                    (maxPrice - minPrice)
+                ) * 100;
+
+        }
+
+
+        var durationScore = 50;
+
+        if (maxDuration !== minDuration) {
+
+            durationScore =
+                (
+                    (maxDuration - ride.duration) /
+                    (maxDuration - minDuration)
+                ) * 100;
+
+        }
+
+
+        var ratingScore = 50;
+
+        if (maxRating !== minRating) {
+
+            ratingScore =
+                (
+                    (ride.rating - minRating) /
+                    (maxRating - minRating)
+                ) * 100;
+
+        }
+
+
+        var reviewScore = 50;
+
+        if (maxReviews !== minReviews) {
+
+            reviewScore =
+                (
+                    (ride.reviews - minReviews) /
+                    (maxReviews - minReviews)
+                ) * 100;
+
+        }
+
+
+        /*
+           Overall weights:
+
+           Price      = 35%
+           Duration   = 25%
+           Rating     = 25%
+           Reviews    = 15%
+        */
+
+        var score =
+            (priceScore * 0.35) +
+            (durationScore * 0.25) +
+            (ratingScore * 0.25) +
+            (reviewScore * 0.15);
+
+
+        return Math.round(score);
+
+    }
+
+
+    /* =========================
+       COMPARE RIDES
+    ========================= */
+
+    compareBtn.addEventListener(
+        "click",
+        function () {
+
+            var source =
+                sourceInput.value.trim();
+
+            var destination =
+                destinationInput.value.trim();
+
+
+            if (!source) {
+
+                message.textContent =
+                    "Please enter a source.";
+
+                sourceInput.focus();
+
+                return;
+
+            }
+
+
+            if (!destination) {
+
+                message.textContent =
+                    "Please enter a destination.";
+
+                destinationInput.focus();
+
+                return;
+
+            }
+
+
+            if (
+                source.toLowerCase() ===
+                destination.toLowerCase()
+            ) {
+
+                message.textContent =
+                    "Source and destination cannot be the same.";
+
+                return;
+
+            }
+
+
+            message.textContent =
+                "Comparing Uber, Rapido and Ola...";
+
+
+            compareBtn.disabled = true;
+
+
+            var distance =
+                calculateDistance(
+                    source,
+                    destination
+                );
+
+
+            var filteredRides =
+                getFilteredRides();
+
+
+            var rides =
+                filteredRides.map(
+                    function (ride) {
+
+                        return calculateRideDetails(
+                            ride,
+                            distance
+                        );
+
+                    }
+                );
+
+
+            if (rides.length === 0) {
+
+                message.textContent =
+                    "No rides available.";
+
+                compareBtn.disabled = false;
+
+                return;
+
+            }
+
+
+            displayRideComparison(rides);
+
+            displaySummary(rides);
+
+            displayPlatformComparison(rides);
+
+            displayOverallSuggestion(rides);
+
+
+            results.classList.remove("hidden");
+
+
+            message.textContent =
+                "Ride comparison completed.";
+
+
+            compareBtn.disabled = false;
+
+        }
+    );
+
+
+    /* =========================
+       DISPLAY RIDE TABLE
+    ========================= */
+
+    function displayRideComparison(
+        rides
+    ) {
+
+        rideTableBody.innerHTML = "";
+
+
+        rides.forEach(
+            function (ride) {
+
+                var row =
+                    document.createElement("tr");
+
+
+                row.innerHTML =
+
+                    "<td>" +
+                    ride.platform +
+                    "</td>" +
+
+                    "<td>" +
+                    ride.vehicle +
+                    "</td>" +
+
+                    "<td>₹" +
+                    ride.price +
+                    "</td>" +
+
+                    "<td>" +
+                    ride.distance +
+                    " km</td>" +
+
+                    "<td>" +
+                    ride.duration +
+                    " min</td>" +
+
+                    "<td>⭐ " +
+                    ride.rating.toFixed(1) +
+                    "</td>" +
+
+                    "<td>" +
+                    ride.reviews.toLocaleString() +
+                    "</td>";
+
+
+                rideTableBody.appendChild(row);
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       DISPLAY SUMMARY
+    ========================= */
+
+    function displaySummary(
+        rides
+    ) {
+
+        var cheapest =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.price <
+                        b.price ? a : b;
+
+                }
+            );
+
+
+        var fastest =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.duration <
+                        b.duration ? a : b;
+
+                }
+            );
+
+
+        var highestRating =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.rating >
+                        b.rating ? a : b;
+
+                }
+            );
+
+
+        var mostReviews =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.reviews >
+                        b.reviews ? a : b;
+
+                }
+            );
+
+
+        cheapestResult.textContent =
+            cheapest.platform +
+            " " +
+            cheapest.vehicle +
+            " - ₹" +
+            cheapest.price;
+
+
+        fastestResult.textContent =
+            fastest.platform +
+            " " +
+            fastest.vehicle +
+            " - " +
+            fastest.duration +
+            " min";
+
+
+        ratingResult.textContent =
+            highestRating.platform +
+            " " +
+            highestRating.vehicle +
+            " - ⭐ " +
+            highestRating.rating.toFixed(1);
+
+
+        reviewsResult.textContent =
+            mostReviews.platform +
+            " " +
+            mostReviews.vehicle +
+            " - " +
+            mostReviews.reviews.toLocaleString();
+
+    }
+
+
+    /* =========================
+       PLATFORM COMPARISON
+    ========================= */
+
+    function displayPlatformComparison(
+        rides
+    ) {
+
+        platformTableBody.innerHTML = "";
+
+
+        var platforms = [
+            "Uber",
+            "Rapido",
+            "Ola"
+        ];
+
+
+        platforms.forEach(
+            function (platform) {
+
+                var platformRides =
+                    rides.filter(
+                        function (ride) {
+
+                            return ride.platform ===
+                                platform;
+
+                        }
+                    );
+
+
+                if (platformRides.length === 0) {
+                    return;
+                }
+
+
+                var totalPrice = 0;
+
+                var totalDuration = 0;
+
+                var totalRating = 0;
+
+                var totalReviews = 0;
+
+
+                platformRides.forEach(
+                    function (ride) {
+
+                        totalPrice +=
+                            ride.price;
+
+                        totalDuration +=
+                            ride.duration;
+
+                        totalRating +=
+                            ride.rating;
+
+                        totalReviews +=
+                            ride.reviews;
+
+                    }
+                );
+
+
+                var averagePrice =
+                    totalPrice /
+                    platformRides.length;
+
+
+                var averageDuration =
+                    totalDuration /
+                    platformRides.length;
+
+
+                var averageRating =
+                    totalRating /
+                    platformRides.length;
+
+
+                /*
+                   Platform score is calculated
+                   from the platform's average
+                   values.
+                */
+
+                var platformAverageRide = {
+
+                    price: averagePrice,
+
+                    duration: averageDuration,
+
+                    rating: averageRating,
+
+                    reviews: totalReviews
+
+                };
+
+
+                var score =
+                    calculateRideScore(
+                        platformAverageRide,
+                        rides
+                    );
+
+
+                var row =
+                    document.createElement("tr");
+
+
+                row.innerHTML =
+
+                    "<td>" +
+                    platform +
+                    "</td>" +
+
+                    "<td>₹" +
+                    Math.round(
+                        averagePrice
+                    ) +
+                    "</td>" +
+
+                    "<td>" +
+                    Math.round(
+                        averageDuration
+                    ) +
+                    " min</td>" +
+
+                    "<td>⭐ " +
+                    averageRating.toFixed(1) +
+                    "</td>" +
+
+                    "<td>" +
+                    totalReviews.toLocaleString() +
+                    "</td>" +
+
+                    "<td>" +
+                    score +
+                    "</td>";
+
+
+                platformTableBody.appendChild(
+                    row
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       OVERALL SUGGESTION
+    ========================= */
+
+    function displayOverallSuggestion(
+        rides
+    ) {
+
+        /*
+           IMPORTANT:
+
+           We score EVERY individual ride.
+
+           Example:
+
+           Uber Bike
+           Uber Auto
+           Uber Car
+
+           Rapido Bike
+           Rapido Auto
+           Rapido Car
+
+           Ola Bike
+           Ola Auto
+           Ola Car
+
+           The highest scoring individual
+           ride becomes the final suggestion.
+        */
+
+
+        var scoredRides =
+            rides.map(
+                function (ride) {
+
+                    return {
+
+                        ride: ride,
+
+                        score:
+                            calculateRideScore(
+                                ride,
+                                rides
+                            )
+
+                    };
+
+                }
+            );
+
+
+        /*
+           Sort from highest score
+           to lowest score.
+        */
+
+        scoredRides.sort(
+            function (a, b) {
+
+                return b.score -
+                    a.score;
+
+            }
+        );
+
+
+        /*
+           The FIRST ride is the
+           overall best option.
+        */
+
+        var bestRide =
+            scoredRides[0];
+
+
+        var cheapest =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.price <
+                        b.price ? a : b;
+
+                }
+            );
+
+
+        var fastest =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.duration <
+                        b.duration ? a : b;
+
+                }
+            );
+
+
+        var highestRated =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.rating >
+                        b.rating ? a : b;
+
+                }
+            );
+
+
+        var mostReviewed =
+            rides.reduce(
+                function (a, b) {
+
+                    return a.reviews >
+                        b.reviews ? a : b;
+
+                }
+            );
+
+
+        /*
+           Show the final recommendation.
+        */
+
+        overallSuggestion.innerHTML =
+
+            "<strong>🏆 Overall Best Option:</strong> " +
+
+            bestRide.ride.platform +
+            " " +
+            bestRide.ride.vehicle +
+
+            " — Ride Score: " +
+            bestRide.score +
+
+            "<br><br>" +
+
+            "<strong>💰 Price:</strong> ₹" +
+            bestRide.ride.price +
+
+            "<br>" +
+
+            "<strong>⚡ Duration:</strong> " +
+            bestRide.ride.duration +
+            " minutes" +
+
+            "<br>" +
+
+            "<strong>⭐ Rating:</strong> " +
+            bestRide.ride.rating.toFixed(1) +
+
+            "<br>" +
+
+            "<strong>💬 Reviews:</strong> " +
+            bestRide.ride.reviews.toLocaleString() +
+
+            "<br><br>" +
+
+            "<strong>Other Comparisons:</strong>" +
+
+            "<br><br>" +
+
+            "💰 <strong>Cheapest:</strong> " +
+            cheapest.platform +
+            " " +
+            cheapest.vehicle +
+            " — ₹" +
+            cheapest.price +
+
+            "<br>" +
+
+            "⚡ <strong>Fastest:</strong> " +
+            fastest.platform +
+            " " +
+            fastest.vehicle +
+            " — " +
+            fastest.duration +
+            " minutes" +
+
+            "<br>" +
+
+            "⭐ <strong>Highest Rated:</strong> " +
+            highestRated.platform +
+            " " +
+            highestRated.vehicle +
+            " — ⭐ " +
+            highestRated.rating.toFixed(1) +
+
+            "<br>" +
+
+            "💬 <strong>Most Reviewed:</strong> " +
+            mostReviewed.platform +
+            " " +
+            mostReviewed.vehicle +
+            " — " +
+            mostReviewed.reviews.toLocaleString() +
+
+            "<br><br>" +
+
+            "<strong>💡 Final Suggestion:</strong> " +
+
+            bestRide.ride.platform +
+            " " +
+            bestRide.ride.vehicle +
+
+            " is the overall recommended option based on " +
+            "price, duration, rating and reviews.";
+
+
+    }
+
+
+</script>
+
+
+</body>
+
+</html>

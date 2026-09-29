@@ -1,0 +1,10 @@
+
+import pandas as pd
+
+df = pd.read_csv("ride.csv",encoding="cp1252")
+
+print(df.head())
+print("Rows:", len(df))
+print("Columns:", df.columns.tolist())
+print("\nMissing values:")
+print(df.isnull().sum())
