@@ -1,0 +1,1418 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Ride Hub</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f6fa;
+    color: #222;
+}
+
+/* HEADER */
+
+.header {
+    background: linear-gradient(
+        135deg,
+        #111827,
+        #2563eb
+    );
+
+    color: white;
+    text-align: center;
+    padding: 28px 15px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 34px;
+}
+
+.header p {
+    margin: 8px 0 0;
+    font-size: 15px;
+}
+
+/* MAIN */
+
+.container {
+    width: 94%;
+    max-width: 900px;
+    margin: 30px auto 50px;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 28px;
+
+    box-shadow:
+        0 6px 20px rgba(0,0,0,0.08);
+}
+
+.title {
+    text-align: center;
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+/* LABEL */
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* LOCATION */
+
+.location-box {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.location-input {
+    width: 100%;
+    padding: 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    font-size: 15px;
+    outline: none;
+}
+
+.location-input:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(
+            37,
+            99,
+            235,
+            0.12
+        );
+}
+
+/* SUGGESTIONS */
+
+.suggestions {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: 100%;
+
+    background: white;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    box-shadow:
+        0 6px 15px rgba(0,0,0,0.12);
+
+    z-index: 1000;
+
+    display: none;
+
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.suggestion {
+    padding: 13px;
+
+    border-bottom:
+        1px solid #eeeeee;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.suggestion:hover {
+    background: #eff6ff;
+}
+
+.suggestion:last-child {
+    border-bottom: none;
+}
+
+/* CURRENT LOCATION */
+
+.current-location {
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #2563eb;
+    color: white;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    margin: 8px 0;
+}
+
+.current-location:hover {
+    background: #1d4ed8;
+}
+
+.current-location:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+}
+
+/* STATUS */
+
+.location-status {
+    text-align: center;
+
+    min-height: 22px;
+
+    margin: 5px 0 18px;
+
+    font-size: 13px;
+}
+
+.success {
+    color: #15803d;
+    font-weight: bold;
+}
+
+.error {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+/* ROUTE LINE */
+
+.route-line {
+    width: 2px;
+    height: 25px;
+
+    background: #d1d5db;
+
+    margin-left: 18px;
+    margin-top: -10px;
+    margin-bottom: 5px;
+}
+
+/* VEHICLE */
+
+.vehicle-section {
+    margin-top: 25px;
+}
+
+.vehicle-select {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    font-size: 15px;
+    background: white;
+}
+
+/* VEHICLE CARDS */
+
+.vehicle-cards {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 10px;
+
+    margin-top: 12px;
+}
+
+.vehicle-card {
+    padding: 12px 5px;
+
+    text-align: center;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    background: white;
+}
+
+.vehicle-card:hover {
+    border-color: #2563eb;
+}
+
+.vehicle-card.active {
+    background: #eff6ff;
+
+    border-color: #2563eb;
+
+    color: #1d4ed8;
+
+    font-weight: bold;
+}
+
+.vehicle-icon {
+    display: block;
+
+    font-size: 24px;
+
+    margin-bottom: 5px;
+}
+
+/* INFORMATION */
+
+.info {
+    margin-top: 25px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    font-size: 13px;
+}
+
+.info strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.info ul {
+    margin: 0;
+    padding-left: 20px;
+
+    line-height: 1.7;
+
+    color: #64748b;
+}
+
+/* COMPARE */
+
+.compare-button {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 16px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #111827,
+        #2563eb
+    );
+
+    color: white;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.compare-button:hover {
+    opacity: 0.95;
+}
+
+.compare-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* LOADING */
+
+.loading {
+    display: none;
+
+    text-align: center;
+
+    color: #2563eb;
+
+    font-weight: bold;
+
+    margin-top: 12px;
+}
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+
+    margin-top: 20px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .header h1 {
+        font-size: 28px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .vehicle-cards {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <h1>🚕 RIDE HUB</h1>
+
+    <p>
+        Compare Rapido • Uber • Ola
+    </p>
+
+</div>
+
+
+<div class="container">
+
+<div class="card">
+
+<div class="title">
+    🔍 Compare Your Ride
+</div>
+
+
+<!-- PICKUP -->
+
+<label for="sourceInput">
+    📍 Pickup Location
+</label>
+
+<div class="location-box">
+
+    <input
+        type="text"
+        id="sourceInput"
+        class="location-input"
+        placeholder="Type pickup location..."
+        autocomplete="off"
+    >
+
+    <div
+        id="sourceSuggestions"
+        class="suggestions"
+    ></div>
+
+</div>
+
+
+<!-- HIDDEN PICKUP COORDINATES -->
+
+<input
+    type="hidden"
+    id="source_lat"
+>
+
+<input
+    type="hidden"
+    id="source_lng"
+>
+
+
+<!-- CURRENT LOCATION -->
+
+<button
+    type="button"
+    id="locationButton"
+    class="current-location"
+>
+    📍 Use My Current Location
+</button>
+
+<div
+    id="locationStatus"
+    class="location-status"
+></div>
+
+
+<div class="route-line"></div>
+
+
+<!-- DESTINATION -->
+
+<label for="destinationInput">
+    🏁 Destination
+</label>
+
+<div class="location-box">
+
+    <input
+        type="text"
+        id="destinationInput"
+        class="location-input"
+        placeholder="Type destination..."
+        autocomplete="off"
+    >
+
+    <div
+        id="destinationSuggestions"
+        class="suggestions"
+    ></div>
+
+</div>
+
+
+<!-- HIDDEN DESTINATION COORDINATES -->
+
+<input
+    type="hidden"
+    id="destination_lat"
+>
+
+<input
+    type="hidden"
+    id="destination_lng"
+>
+
+
+<!-- VEHICLE -->
+
+<div class="vehicle-section">
+
+<label>
+    🚗 Vehicle Type
+</label>
+
+<select
+    id="vehicleSelect"
+    class="vehicle-select"
+>
+
+<option value="All">
+    🚕 All Vehicles
+</option>
+
+<option value="Bike">
+    🏍️ Bike
+</option>
+
+<option value="Auto">
+    🛺 Auto
+</option>
+
+<option value="Car">
+    🚗 Car
+</option>
+
+</select>
+
+
+<div class="vehicle-cards">
+
+<div
+    class="vehicle-card active"
+    data-value="All"
+>
+    <span class="vehicle-icon">🚕</span>
+    All
+</div>
+
+
+<div
+    class="vehicle-card"
+    data-value="Bike"
+>
+    <span class="vehicle-icon">🏍️</span>
+    Bike
+</div>
+
+
+<div
+    class="vehicle-card"
+    data-value="Auto"
+>
+    <span class="vehicle-icon">🛺</span>
+    Auto
+</div>
+
+
+<div
+    class="vehicle-card"
+    data-value="Car"
+>
+    <span class="vehicle-icon">🚗</span>
+    Car
+</div>
+
+</div>
+
+</div>
+
+
+<!-- INFORMATION -->
+
+<div class="info">
+
+<strong>
+    📊 Ride Hub compares:
+</strong>
+
+<ul>
+
+<li>Rapido</li>
+
+<li>Uber</li>
+
+<li>Ola</li>
+
+<li>Bike</li>
+
+<li>Auto</li>
+
+<li>Car</li>
+
+<li>Distance</li>
+
+<li>Travel Time</li>
+
+<li>Estimated Price</li>
+
+<li>Rating</li>
+
+<li>Review</li>
+
+<li>Lowest Price</li>
+
+<li>Fastest Ride</li>
+
+<li>Highest Rated Ride</li>
+
+<li>Overall Best Ride</li>
+
+</ul>
+
+</div>
+
+
+<!-- FORM -->
+
+<form
+    id="rideForm"
+    action="/compare"
+    method="POST"
+>
+
+<input
+    type="hidden"
+    name="source"
+    id="form_source"
+>
+
+<input
+    type="hidden"
+    name="destination"
+    id="form_destination"
+>
+
+<input
+    type="hidden"
+    name="source_lat"
+    id="form_source_lat"
+>
+
+<input
+    type="hidden"
+    name="source_lng"
+    id="form_source_lng"
+>
+
+<input
+    type="hidden"
+    name="destination_lat"
+    id="form_destination_lat"
+>
+
+<input
+    type="hidden"
+    name="destination_lng"
+    id="form_destination_lng"
+>
+
+<input
+    type="hidden"
+    name="vehicle"
+    id="form_vehicle"
+    value="All"
+>
+
+
+<button
+    type="submit"
+    id="compareButton"
+    class="compare-button"
+>
+    🔍 Compare All Rides
+</button>
+
+<div
+    id="loading"
+    class="loading"
+>
+    ⏳ Calculating distance, time and ride prices...
+</div>
+
+</form>
+
+</div>
+
+
+<div class="footer">
+    Ride Hub — College AI/Data Project
+</div>
+
+</div>
+
+<script>
+
+/* ==========================================
+   ELEMENTS
+========================================== */
+
+const sourceInput =
+document.getElementById("sourceInput");
+
+const destinationInput =
+document.getElementById("destinationInput");
+
+const sourceSuggestions =
+document.getElementById("sourceSuggestions");
+
+const destinationSuggestions =
+document.getElementById("destinationSuggestions");
+
+const sourceLat =
+document.getElementById("source_lat");
+
+const sourceLng =
+document.getElementById("source_lng");
+
+const destinationLat =
+document.getElementById("destination_lat");
+
+const destinationLng =
+document.getElementById("destination_lng");
+
+const locationButton =
+document.getElementById("locationButton");
+
+const locationStatus =
+document.getElementById("locationStatus");
+
+const vehicleSelect =
+document.getElementById("vehicleSelect");
+
+const form =
+document.getElementById("rideForm");
+
+const compareButton =
+document.getElementById("compareButton");
+
+const loading =
+document.getElementById("loading");
+
+
+/* ==========================================
+   LOCATION SEARCH
+========================================== */
+
+function setupSearch(
+    input,
+    box,
+    latInput,
+    lngInput
+) {
+
+    let timer;
+
+
+    input.addEventListener(
+        "input",
+        function() {
+
+            clearTimeout(timer);
+
+
+            /*
+             * If user changes the text,
+             * old coordinates are removed.
+             */
+
+            latInput.value = "";
+            lngInput.value = "";
+
+
+            const query =
+            input.value.trim();
+
+
+            if(query.length < 3) {
+
+                box.innerHTML = "";
+
+                box.style.display =
+                "none";
+
+                return;
+            }
+
+
+            timer = setTimeout(
+                async function() {
+
+                    try {
+
+                        const response =
+                        await fetch(
+                            "/search_location?q="
+                            +
+                            encodeURIComponent(
+                                query
+                            )
+                        );
+
+
+                        if(!response.ok) {
+                            throw new Error(
+                                "Search failed"
+                            );
+                        }
+
+
+                        const places =
+                        await response.json();
+
+
+                        box.innerHTML = "";
+
+
+                        if(
+                            !Array.isArray(
+                                places
+                            )
+                            ||
+                            places.length === 0
+                        ) {
+
+                            box.style.display =
+                            "none";
+
+                            return;
+                        }
+
+
+                        places.forEach(
+                            function(place) {
+
+                                const item =
+                                document.createElement(
+                                    "div"
+                                );
+
+
+                                item.className =
+                                "suggestion";
+
+
+                                item.textContent =
+                                place.name;
+
+
+                                item.addEventListener(
+                                    "click",
+                                    function() {
+
+                                        input.value =
+                                        place.name;
+
+
+                                        latInput.value =
+                                        place.lat;
+
+
+                                        lngInput.value =
+                                        place.lng;
+
+
+                                        box.style.display =
+                                        "none";
+
+                                        box.innerHTML =
+                                        "";
+
+                                    }
+                                );
+
+
+                                box.appendChild(
+                                    item
+                                );
+
+                            }
+                        );
+
+
+                        box.style.display =
+                        "block";
+
+                    }
+                    catch(error) {
+
+                        console.log(
+                            "Search error:",
+                            error
+                        );
+
+                        box.style.display =
+                        "none";
+
+                    }
+
+                },
+                400
+            );
+
+        }
+    );
+
+}
+
+
+/* PICKUP SEARCH */
+
+setupSearch(
+    sourceInput,
+    sourceSuggestions,
+    sourceLat,
+    sourceLng
+);
+
+
+/* DESTINATION SEARCH */
+
+setupSearch(
+    destinationInput,
+    destinationSuggestions,
+    destinationLat,
+    destinationLng
+);
+
+
+/* ==========================================
+   CURRENT GPS LOCATION
+========================================== */
+
+locationButton.addEventListener(
+    "click",
+    function() {
+
+
+        if(
+            !navigator.geolocation
+        ) {
+
+            locationStatus.innerText =
+            "❌ GPS is not supported.";
+
+            locationStatus.className =
+            "location-status error";
+
+            return;
+        }
+
+
+        locationButton.disabled =
+        true;
+
+
+        locationButton.innerText =
+        "📍 Detecting location...";
+
+
+        locationStatus.innerText =
+        "Please allow location permission.";
+
+
+        locationStatus.className =
+        "location-status";
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            async function(position) {
+
+
+                /*
+                 * REAL PHONE GPS
+                 */
+
+                const lat =
+                position.coords.latitude;
+
+                const lng =
+                position.coords.longitude;
+
+
+                /*
+                 * Save GPS internally.
+                 */
+
+                sourceLat.value =
+                lat;
+
+                sourceLng.value =
+                lng;
+
+
+                try {
+
+
+                    /*
+                     * Convert coordinates
+                     * into readable location.
+                     */
+
+                    const response =
+                    await fetch(
+                        "/reverse_location?lat="
+                        +
+                        encodeURIComponent(
+                            lat
+                        )
+                        +
+                        "&lng="
+                        +
+                        encodeURIComponent(
+                            lng
+                        )
+                    );
+
+
+                    const data =
+                    await response.json();
+
+
+                    sourceInput.value =
+                    data.name
+                    ||
+                    "Current Location";
+
+
+                    locationStatus.innerText =
+                    "✅ Current location added as pickup.";
+
+                    locationStatus.className =
+                    "location-status success";
+
+
+                }
+                catch(error) {
+
+
+                    console.log(error);
+
+
+                    sourceInput.value =
+                    "Current Location";
+
+
+                    locationStatus.innerText =
+                    "✅ GPS location detected.";
+
+                    locationStatus.className =
+                    "location-status success";
+
+                }
+
+
+                locationButton.disabled =
+                false;
+
+
+                locationButton.innerText =
+                "✅ Current Location Added";
+
+            },
+
+
+            function(error) {
+
+
+                locationButton.disabled =
+                false;
+
+
+                locationButton.innerText =
+                "📍 Use My Current Location";
+
+
+                if(error.code === 1) {
+
+                    locationStatus.innerText =
+                    "❌ Location permission denied. Allow location access in Chrome.";
+
+                }
+
+                else if(error.code === 2) {
+
+                    locationStatus.innerText =
+                    "❌ Location unavailable. Turn ON phone Location/GPS.";
+
+                }
+
+                else if(error.code === 3) {
+
+                    locationStatus.innerText =
+                    "❌ Location request timed out. Try again.";
+
+                }
+
+                else {
+
+                    locationStatus.innerText =
+                    "❌ Could not detect location.";
+
+                }
+
+
+                locationStatus.className =
+                "location-status error";
+
+            },
+
+
+            {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 0
+            }
+
+        );
+
+    }
+);
+
+
+/* ==========================================
+   VEHICLE DROPDOWN
+========================================== */
+
+vehicleSelect.addEventListener(
+    "change",
+    function() {
+
+        const value =
+        vehicleSelect.value;
+
+
+        document.getElementById(
+            "form_vehicle"
+        ).value = value;
+
+
+        document
+        .querySelectorAll(
+            ".vehicle-card"
+        )
+        .forEach(
+            function(card) {
+
+                if(
+                    card.dataset.value
+                    === value
+                ) {
+
+                    card.classList.add(
+                        "active"
+                    );
+
+                }
+                else {
+
+                    card.classList.remove(
+                        "active"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* ==========================================
+   VEHICLE CARDS
+========================================== */
+
+document
+.querySelectorAll(".vehicle-card")
+.forEach(
+    function(card) {
+
+        card.addEventListener(
+            "click",
+            function() {
+
+                const value =
+                card.dataset.value;
+
+
+                vehicleSelect.value =
+                value;
+
+
+                document.getElementById(
+                    "form_vehicle"
+                ).value =
+                value;
+
+
+                document
+                .querySelectorAll(
+                    ".vehicle-card"
+                )
+                .forEach(
+                    function(item) {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+                card.classList.add(
+                    "active"
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* ==========================================
+   CLOSE SUGGESTIONS
+========================================== */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if(
+            !event.target.closest(
+                ".location-box"
+            )
+        ) {
+
+            sourceSuggestions.style.display =
+            "none";
+
+            destinationSuggestions.style.display =
+            "none";
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   FORM SUBMIT
+========================================== */
+
+form.addEventListener(
+    "submit",
+    function(event) {
+
+
+        /*
+         * Copy visible values.
+         */
+
+        document.getElementById(
+            "form_source"
+        ).value =
+        sourceInput.value.trim();
+
+
+        document.getElementById(
+            "form_destination"
+        ).value =
+        destinationInput.value.trim();
+
+
+        document.getElementById(
+            "form_source_lat"
+        ).value =
+        sourceLat.value;
+
+
+        document.getElementById(
+            "form_source_lng"
+        ).value =
+        sourceLng.value;
+
+
+        document.getElementById(
+            "form_destination_lat"
+        ).value =
+        destinationLat.value;
+
+
+        document.getElementById(
+            "form_destination_lng"
+        ).value =
+        destinationLng.value;
+
+
+        /*
+         * Pickup check.
+         */
+
+        if(
+            !sourceLat.value
+            ||
+            !sourceLng.value
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "Please select the pickup location from the suggestions or use Current Location."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Destination check.
+         */
+
+        if(
+            !destinationLat.value
+            ||
+            !destinationLng.value
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "Please select the destination from the suggestions."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Empty pickup.
+         */
+
+        if(
+            !sourceInput.value.trim()
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "Please enter pickup location."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Empty destination.
+         */
+
+        if(
+            !destinationInput.value.trim()
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "Please enter destination."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Loading message.
+         */
+
+        compareButton.disabled =
+        true;
+
+        compareButton.innerText =
+        "⏳ Comparing Rides...";
+
+        loading.style.display =
+        "block";
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

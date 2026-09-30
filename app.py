@@ -1,366 +1,586 @@
-<<<<<<< HEAD
 
 from flask import Flask, render_template, request, jsonify
-import hashlib
+import requests
 
 app = Flask(__name__)
 
-
-# ---------------------------------------------------------
-# LOCATION / ROUTE BASE DATA
-# ---------------------------------------------------------
-
-base_data = {
-    "Uber": {
-        "Car": {"price": 316, "duration": 23, "rating": 4.6, "reviews": 1500},
-        "Bike": {"price": 140, "duration": 20, "rating": 4.6, "reviews": 3500}
-    },
-
-    "Rapido": {
-        "Car": {"price": 299, "duration": 22, "rating": 4.4, "reviews": 1200},
-        "Bike": {"price": 115, "duration": 16, "rating": 4.4, "reviews": 3530}
-    },
-
-    "Ola": {
-        "Car": {"price": 308, "duration": 24, "rating": 4.5, "reviews": 1400},
-        "Bike": {"price": 193, "duration": 19, "rating": 4.3, "reviews": 3600}
-    }
+HEADERS = {
+    "User-Agent": "RideHub-College-Project/1.0"
 }
 
+PHOTON_URL = "https://photon.komoot.io/api"
+OSRM_URL = "https://router.project-osrm.org/route/v1/driving"
 
-# ---------------------------------------------------------
-# DIFFERENT LOCATIONS GET DIFFERENT PLATFORM ADVANTAGES
-# ---------------------------------------------------------
-
-location_rules = {
-
-    "visakhapatnam": {
-        "Uber": 1,
-        "Rapido": 0,
-        "Ola": 0
-    },
-
-    "vijayawada": {
-        "Uber": 0,
-        "Rapido": 2,
-        "Ola": 1
-    },
-
-    "hyderabad": {
-        "Uber": 1,
-        "Rapido": 2,
-        "Ola": 0
-    },
-
-    "bangalore": {
-        "Uber": 0,
-        "Rapido": 2,
-        "Ola": 1
-    },
-
-    "bengaluru": {
-        "Uber": 0,
-        "Rapido": 2,
-        "Ola": 1
-    },
-
-    "chennai": {
-        "Uber": 1,
-        "Rapido": 0,
-        "Ola": 2
-    },
-
-    "tirupati": {
-        "Uber": 0,
-        "Rapido": 2,
-        "Ola": 1
-    },
-
-    "guntur": {
-        "Uber": 0,
-        "Rapido": 2,
-        "Ola": 1
-    }
-}
-
-
-# ---------------------------------------------------------
-# GET LOCATION ADVANTAGE
-# ---------------------------------------------------------
-
-def get_location_bonus(source, destination, platform):
-
-    route = f"{source} {destination}".lower()
-
-    # Check whether any known location is present
-    for location, rules in location_rules.items():
-        if location in route:
-            return rules.get(platform, 0)
-
-    # For unknown locations, create a stable result
-    # based on source + destination.
-    # It will NOT change randomly every refresh.
-    key = f"{source.lower()}-{destination.lower()}"
-
-    number = int(hashlib.md5(key.encode()).hexdigest(), 16)
-
-    platform_order = ["Uber", "Rapido", "Ola"]
-
-    selected = platform_order[number % 3]
-
-    if platform == selected:
-        return 2
-
-    return 0
-
-
-# ---------------------------------------------------------
-# CALCULATE SCORE
-# ---------------------------------------------------------
-
-def calculate_score(data, location_bonus):
-
-    price_score = max(0, 100 - (data["price"] / 5))
-
-    duration_score = max(0, 100 - (data["duration"] * 2))
-
-    rating_score = data["rating"] * 20
-
-    review_score = min(100, data["reviews"] / 40)
-
-    # Location has an effect, but price/time/rating still matter
-    final_score = (
-        price_score * 0.30
-        + duration_score * 0.25
-        + rating_score * 0.25
-        + review_score * 0.10
-        + location_bonus * 5
-    )
-
-    return round(final_score, 2)
-
-
-# ---------------------------------------------------------
-# HOME PAGE
-# ---------------------------------------------------------
-=======
-from flask import Flask, render_template, request
-import pandas as pd
-
-app = Flask(__name__)
-
-df = pd.read_excel("Ride_Hub_Dataset.xlsx")
-
-# Clean columns
-df["App"] = df["App"].astype(str).str.strip().str.lower()
-df["Review"] = df["Review"].astype(str).str.lower()
-
-df["Price (₹)"] = pd.to_numeric(df["Price (₹)"], errors="coerce")
-df["Rating"] = pd.to_numeric(df["Rating"], errors="coerce")
-
->>>>>>> 584dfdd9fa9589d94268c15236081c2f1c7dc8c5
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-<<<<<<< HEAD
-# ---------------------------------------------------------
-# COMPARISON API
-# ---------------------------------------------------------
+# --------------------------------------------------
+# LOCATION SEARCH
+# --------------------------------------------------
 
-@app.route("/compare", methods=["POST"])
-@app.route("/api/compare", methods=["POST"])
-def compare():
+@app.route("/search_location")
+def search_location():
 
-    data = request.get_json()
+    q = request.args.get("q", "").strip()
 
-    if not data:
-        return jsonify({
-            "error": "No data received"
-        }), 400
+    if len(q) < 3:
+        return jsonify([])
 
-    source = data.get("source", "").strip()
-    destination = data.get("destination", "").strip()
-    vehicle = data.get("vehicleType", data.get("vehicle", "Car"))
+    try:
 
-    if not source or not destination:
-        return jsonify({
-            "error": "Please enter source and destination"
-        }), 400
-
-    if vehicle not in ["Car", "Bike"]:
-        vehicle = "Car"
-
-    results = []
-
-    # -----------------------------------------------------
-    # CREATE RESULT FOR EACH PLATFORM
-    # -----------------------------------------------------
-
-    for platform in ["Uber", "Rapido", "Ola"]:
-
-        original = base_data[platform][vehicle].copy()
-
-        location_bonus = get_location_bonus(
-            source,
-            destination,
-            platform
+        response = requests.get(
+            PHOTON_URL,
+            params={
+                "q": q,
+                "limit": 6,
+                "lang": "en"
+            },
+            headers=HEADERS,
+            timeout=10
         )
 
-        score = calculate_score(
-            original,
-            location_bonus
+        response.raise_for_status()
+
+        data = response.json()
+
+        results = []
+
+        for feature in data.get("features", []):
+
+            coordinates = feature.get(
+                "geometry", {}
+            ).get("coordinates", [])
+
+            if len(coordinates) != 2:
+                continue
+
+            p = feature.get(
+                "properties", {}
+            )
+
+            parts = []
+
+            for value in [
+                p.get("name"),
+                p.get("street"),
+                p.get("district"),
+                p.get("city"),
+                p.get("state"),
+                p.get("country")
+            ]:
+
+                if value and value not in parts:
+                    parts.append(value)
+
+            name = ", ".join(parts)
+
+            if not name:
+                continue
+
+            results.append({
+                "name": name,
+                "lat": coordinates[1],
+                "lng": coordinates[0]
+            })
+
+        return jsonify(results)
+
+    except Exception:
+        return jsonify([])
+
+
+# --------------------------------------------------
+# EXACT CURRENT GPS LOCATION -> PLACE NAME
+# --------------------------------------------------
+
+@app.route("/reverse_location")
+def reverse_location():
+
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+
+    if not lat or not lng:
+        return jsonify({
+            "error": "Coordinates missing"
+        }), 400
+
+    try:
+
+        response = requests.get(
+            f"{PHOTON_URL}/reverse",
+            params={
+                "lat": lat,
+                "lon": lng,
+                "lang": "en"
+            },
+            headers=HEADERS,
+            timeout=15
         )
 
-        result = {
-            "platform": platform,
-            "price": original["price"],
-            "duration": original["duration"],
-            "rating": original["rating"],
-            "reviews": original["reviews"],
-            "score": score
+        response.raise_for_status()
+
+        data = response.json()
+
+        features = data.get("features", [])
+
+        if not features:
+
+            return jsonify({
+                "name": "Current Location",
+                "lat": float(lat),
+                "lng": float(lng)
+            })
+
+        p = features[0].get(
+            "properties", {}
+        )
+
+        parts = []
+
+        for value in [
+            p.get("name"),
+            p.get("street"),
+            p.get("district"),
+            p.get("city"),
+            p.get("state")
+        ]:
+
+            if value and value not in parts:
+                parts.append(value)
+
+        address = ", ".join(parts)
+
+        if not address:
+            address = "Current Location"
+
+        return jsonify({
+            "name": address,
+            "lat": float(lat),
+            "lng": float(lng)
+        })
+
+    except Exception:
+
+        return jsonify({
+            "name": "Current Location",
+            "lat": float(lat),
+            "lng": float(lng)
+        })
+
+
+# --------------------------------------------------
+# ROAD DISTANCE + TIME
+# --------------------------------------------------
+
+def get_route(
+    source_lat,
+    source_lng,
+    destination_lat,
+    destination_lng
+):
+
+    coordinates = (
+        f"{source_lng},{source_lat};"
+        f"{destination_lng},{destination_lat}"
+    )
+
+    response = requests.get(
+        f"{OSRM_URL}/{coordinates}",
+        params={
+            "overview": "false"
+        },
+        headers=HEADERS,
+        timeout=20
+    )
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    if data.get("code") != "Ok":
+        raise Exception("Route not found.")
+
+    route = data["routes"][0]
+
+    distance = round(
+        route["distance"] / 1000,
+        1
+    )
+
+    minutes = max(
+        1,
+        round(route["duration"] / 60)
+    )
+
+    return distance, minutes
+
+
+# --------------------------------------------------
+# FARE
+# --------------------------------------------------
+
+def calculate_fare(
+    company,
+    vehicle,
+    distance,
+    minutes
+):
+
+    rates = {
+
+        "Rapido": {
+            "Bike": (25, 8.0, 0.35),
+            "Auto": (35, 11.0, 0.65),
+            "Car":  (60, 14.0, 0.90)
+        },
+
+        "Uber": {
+            "Bike": (30, 8.5, 0.40),
+            "Auto": (40, 11.5, 0.70),
+            "Car":  (70, 15.0, 1.00)
+        },
+
+        "Ola": {
+            "Bike": (28, 8.2, 0.38),
+            "Auto": (38, 11.2, 0.68),
+            "Car":  (65, 14.5, 0.95)
         }
-
-        results.append(result)
-
-    # -----------------------------------------------------
-    # FIND BEST OVERALL PLATFORM
-    # -----------------------------------------------------
-
-    best = max(
-        results,
-        key=lambda x: x["score"]
-    )
-
-    cheapest = min(
-        results,
-        key=lambda x: x["price"]
-    )
-
-    fastest = min(
-        results,
-        key=lambda x: x["duration"]
-    )
-
-    highest_rated = max(
-        results,
-        key=lambda x: x["rating"]
-    )
-
-    # -----------------------------------------------------
-    # OVERALL SUGGESTION
-    # -----------------------------------------------------
-
-    suggestion = {
-        "platform": best["platform"],
-        "reason": (
-            f"{best['platform']} has the highest overall ride score "
-            f"for this location based on price, duration, rating, "
-            f"reviews and location."
-        ),
-        "cheapest": (
-            f"{cheapest['platform']} {vehicle} at ₹{cheapest['price']}"
-        ),
-        "fastest": (
-            f"{fastest['platform']} {vehicle} in "
-            f"{fastest['duration']} minutes"
-        ),
-        "highestRated": (
-            f"{highest_rated['platform']} {vehicle} with "
-            f"⭐ {highest_rated['rating']}"
-        )
     }
 
-    return jsonify({
-        "source": source,
-        "destination": destination,
-        "vehicle": vehicle,
-        "results": results,
-        "overallSuggestion": suggestion
-    })
+    base, per_km, per_min = rates[company][vehicle]
+
+    fare = (
+        base
+        + distance * per_km
+        + minutes * per_min
+    )
+
+    minimum = {
+        "Bike": 35,
+        "Auto": 50,
+        "Car": 80
+    }
+
+    return max(
+        minimum[vehicle],
+        round(fare)
+    )
 
 
-# ---------------------------------------------------------
-# RUN SERVER
-# ---------------------------------------------------------
+# --------------------------------------------------
+# RIDE TIME
+# --------------------------------------------------
+
+def ride_time(base_time, vehicle):
+
+    factors = {
+        "Bike": 0.92,
+        "Auto": 1.00,
+        "Car": 0.96
+    }
+
+    return max(
+        1,
+        round(base_time * factors[vehicle])
+    )
+
+
+# --------------------------------------------------
+# RATINGS
+# --------------------------------------------------
+
+def rating(company, vehicle):
+
+    ratings = {
+
+        "Rapido": {
+            "Bike": 4.5,
+            "Auto": 4.3,
+            "Car": 4.2
+        },
+
+        "Uber": {
+            "Bike": 4.4,
+            "Auto": 4.5,
+            "Car": 4.4
+        },
+
+        "Ola": {
+            "Bike": 4.3,
+            "Auto": 4.4,
+            "Car": 4.3
+        }
+    }
+
+    return ratings[company][vehicle]
+
+
+def review(value):
+
+    if value >= 4.5:
+        return "Very Good"
+
+    if value >= 4.3:
+        return "Good"
+
+    return "Average"
+
+
+# --------------------------------------------------
+# CREATE RIDES
+# --------------------------------------------------
+
+def create_rides(distance, base_time):
+
+    rides = []
+
+    for company in [
+        "Rapido",
+        "Uber",
+        "Ola"
+    ]:
+
+        for vehicle in [
+            "Bike",
+            "Auto",
+            "Car"
+        ]:
+
+            time = ride_time(
+                base_time,
+                vehicle
+            )
+
+            r = rating(
+                company,
+                vehicle
+            )
+
+            rides.append({
+
+                "Company": company,
+                "Vehicle": vehicle,
+                "Price": calculate_fare(
+                    company,
+                    vehicle,
+                    distance,
+                    time
+                ),
+                "Distance": distance,
+                "Time": time,
+                "Rating": r,
+                "Review": review(r),
+                "Overall Score": 0
+            })
+
+    return rides
+
+
+# --------------------------------------------------
+# OVERALL BEST
+# Equal importance:
+# Price 33.33%
+# Time 33.33%
+# Rating 33.34%
+# --------------------------------------------------
+
+def calculate_overall(rides):
+
+    prices = [r["Price"] for r in rides]
+    times = [r["Time"] for r in rides]
+    ratings = [r["Rating"] for r in rides]
+
+    min_price = min(prices)
+    max_price = max(prices)
+
+    min_time = min(times)
+    max_time = max(times)
+
+    min_rating = min(ratings)
+    max_rating = max(ratings)
+
+    for r in rides:
+
+        if max_price == min_price:
+            price_score = 100
+        else:
+            price_score = (
+                (max_price - r["Price"])
+                / (max_price - min_price)
+            ) * 100
+
+        if max_time == min_time:
+            time_score = 100
+        else:
+            time_score = (
+                (max_time - r["Time"])
+                / (max_time - min_time)
+            ) * 100
+
+        if max_rating == min_rating:
+            rating_score = 100
+        else:
+            rating_score = (
+                (r["Rating"] - min_rating)
+                / (max_rating - min_rating)
+            ) * 100
+
+        r["Overall Score"] = round(
+            price_score * 0.3333
+            + time_score * 0.3333
+            + rating_score * 0.3334,
+            2
+        )
+
+    return max(
+        rides,
+        key=lambda r: r["Overall Score"]
+    )
+
+
+# --------------------------------------------------
+# COMPARE
+# --------------------------------------------------
+
+@app.route(
+    "/compare",
+    methods=["POST"]
+)
+def compare():
+
+    try:
+
+        source = request.form.get(
+            "source",
+            ""
+        ).strip()
+
+        destination = request.form.get(
+            "destination",
+            ""
+        ).strip()
+
+        vehicle = request.form.get(
+            "vehicle",
+            "All"
+        )
+
+        source_lat = request.form.get(
+            "source_lat"
+        )
+
+        source_lng = request.form.get(
+            "source_lng"
+        )
+
+        destination_lat = request.form.get(
+            "destination_lat"
+        )
+
+        destination_lng = request.form.get(
+            "destination_lng"
+        )
+
+
+        if not source_lat or not source_lng:
+            raise Exception(
+                "Please select a pickup location or use Current Location."
+            )
+
+        if not destination_lat or not destination_lng:
+            raise Exception(
+                "Please select the destination from the suggestions."
+            )
+
+
+        distance, base_time = get_route(
+
+            float(source_lat),
+            float(source_lng),
+
+            float(destination_lat),
+            float(destination_lng)
+        )
+
+
+        rides = create_rides(
+            distance,
+            base_time
+        )
+
+
+        if vehicle != "All":
+
+            rides = [
+                r for r in rides
+                if r["Vehicle"] == vehicle
+            ]
+
+
+        best = calculate_overall(rides)
+
+        lowest = min(
+            rides,
+            key=lambda r: r["Price"]
+        )
+
+        fastest = min(
+            rides,
+            key=lambda r: r["Time"]
+        )
+
+        highest = max(
+            rides,
+            key=lambda r: r["Rating"]
+        )
+
+
+        return render_template(
+            "result.html",
+            results=rides,
+            best_overall=best,
+            lowest_price=lowest,
+            fastest=fastest,
+            highest_rated=highest,
+            source=source,
+            destination=destination,
+            distance=distance,
+            base_minutes=base_time,
+            selected_vehicle=vehicle,
+            error=None
+        )
+
+
+    except Exception as e:
+
+        return render_template(
+            "result.html",
+            results=[],
+            best_overall=None,
+            lowest_price=None,
+            fastest=None,
+            highest_rated=None,
+            source=request.form.get(
+                "source",
+                ""
+            ),
+            destination=request.form.get(
+                "destination",
+                ""
+            ),
+            distance=None,
+            base_minutes=None,
+            selected_vehicle="All",
+            error=str(e)
+        )
+
 
 if __name__ == "__main__":
     app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5000
+        host="0.0.0.0",
+        port=5000,
+        debug=True
     )
-=======
-@app.route("/compare", methods=["POST"])
-def compare():
-
-    source = request.form["source"]
-    destination = request.form["destination"]
-    vehicle = request.form["vehicle"].strip().lower()
-
-    # Identify vehicle type from Review
-    if vehicle == "bike":
-        vehicle_data = df[df["Review"].str.contains("bike", na=False)]
-    elif vehicle == "auto":
-        vehicle_data = df[df["Review"].str.contains("auto", na=False)]
-    elif vehicle == "car":
-        vehicle_data = df[df["Review"].str.contains("car", na=False)]
-    else:
-        vehicle_data = df
-
-    # Separate companies
-    rapido = vehicle_data[vehicle_data["App"] == "rapido"]
-    uber = vehicle_data[vehicle_data["App"] == "uber"]
-    ola = vehicle_data[vehicle_data["App"] == "ola"]
-
-    # Prices
-    rapido_price = rapido["Price (₹)"].mean()
-    uber_price = uber["Price (₹)"].mean()
-    ola_price = ola["Price (₹)"].mean()
-
-    # Ratings
-    rapido_rating = rapido["Rating"].mean()
-    uber_rating = uber["Rating"].mean()
-    ola_rating = ola["Rating"].mean()
-
-    # Find lowest price
-    prices = {
-        "Rapido": rapido_price,
-        "Uber": uber_price,
-        "Ola": ola_price
-    }
-
-    valid_prices = {
-        name: price
-        for name, price in prices.items()
-        if pd.notna(price)
-    }
-
-    if valid_prices:
-        best_ride = min(valid_prices, key=valid_prices.get)
-    else:
-        best_ride = "No ride data available"
-
-    return render_template(
-        "result.html",
-        source=source,
-        destination=destination,
-        vehicle=vehicle.title(),
-
-        rapido_price=round(rapido_price, 2) if pd.notna(rapido_price) else "N/A",
-        uber_price=round(uber_price, 2) if pd.notna(uber_price) else "N/A",
-        ola_price=round(ola_price, 2) if pd.notna(ola_price) else "N/A",
-
-        rapido_rating=round(rapido_rating, 2) if pd.notna(rapido_rating) else "N/A",
-        uber_rating=round(uber_rating, 2) if pd.notna(uber_rating) else "N/A",
-        ola_rating=round(ola_rating, 2) if pd.notna(ola_rating) else "N/A",
-
-        best_ride=best_ride
-    )
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
->>>>>>> 584dfdd9fa9589d94268c15236081c2f1c7dc8c5

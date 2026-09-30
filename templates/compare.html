@@ -1,178 +1,350 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Ride Comparison</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ride Hub - Comparison</title>
 
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f4f4f4;
         }
 
-        h1 {
+        body {
+            margin: 0;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
             text-align: center;
+            padding: 25px;
         }
 
         .container {
-            max-width: 800px;
-            margin: auto;
+            width: 92%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .top-box {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.1);
+            margin-bottom: 25px;
         }
 
-        label {
+        .top-box h2 {
+            margin-top: 0;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .detail {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail strong {
             display: block;
-            margin-top: 15px;
-            font-weight: bold;
+            margin-bottom: 5px;
         }
 
-        select,
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
+        .results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .ride-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.1);
+        }
+
+        .ride-card h2 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e5e7eb;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            margin: 12px 0;
             font-size: 16px;
         }
 
-        button {
-            margin-top: 25px;
-            cursor: pointer;
+        .price {
+            font-size: 25px;
+            font-weight: bold;
+            margin: 15px 0;
         }
 
-        .message {
-            margin-top: 20px;
-            padding: 15px;
-            background: #eee;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 25px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
+        .review {
+            background: #f3f4f6;
             padding: 10px;
-            text-align: left;
+            border-radius: 7px;
+            margin-top: 12px;
         }
 
-        th {
-            background: #ddd;
+        .view-btn {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #111827;
+            color: white;
+            padding: 12px;
+            border-radius: 7px;
+            margin-top: 18px;
+            font-weight: bold;
+        }
+
+        .view-btn:hover {
+            background: #374151;
+        }
+
+        .home-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 7px;
+            margin-top: 25px;
+            font-weight: bold;
+        }
+
+        .recommendations {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.1);
+        }
+
+        .recommendations p {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .no-results {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
 
+<div class="header">
+    <h1>🚕 Ride Hub</h1>
+    <p>Ride Comparison Results</p>
+</div>
+
 <div class="container">
 
-    <h1>Ride Comparison</h1>
+    <div class="top-box">
 
-    <form method="POST" action="/compare">
+        <h2>Trip Details</h2>
 
-        <label for="source">Source</label>
+        <div class="details">
 
-        <select name="source" id="source" required>
+            <div class="detail">
+                <strong>📍 Pickup</strong>
+                {{ source }}
+            </div>
 
-            <option value="">Select Source</option>
+            <div class="detail">
+                <strong>📍 Destination</strong>
+                {{ destination }}
+            </div>
 
-            {% for source in sources %}
-                <option value="{{ source }}">
-                    {{ source }}
-                </option>
-            {% endfor %}
+            <div class="detail">
+                <strong>🚗 Vehicle</strong>
+                {{ vehicle }}
+            </div>
 
-        </select>
+            <div class="detail">
+                <strong>🗺️ Location</strong>
 
+                {% if latitude and longitude %}
+                    {{ latitude }}, {{ longitude }}
+                {% else %}
+                    Not available
+                {% endif %}
 
-        <label for="destination">Destination</label>
+            </div>
 
-        <select name="destination" id="destination" required>
-
-            <option value="">Select Destination</option>
-
-            {% for destination in destinations %}
-                <option value="{{ destination }}">
-                    {{ destination }}
-                </option>
-            {% endfor %}
-
-        </select>
-
-
-        <label for="vehicle_type">Vehicle Type</label>
-
-        <select name="vehicle_type" id="vehicle_type" required>
-
-            <option value="">Select Vehicle Type</option>
-
-            {% for vehicle in vehicle_types %}
-                <option value="{{ vehicle }}">
-                    {{ vehicle }}
-                </option>
-            {% endfor %}
-
-        </select>
-
-
-        <button type="submit">
-            Compare Ride
-        </button>
-
-    </form>
-
-
-    {% if message %}
-
-        <div class="message">
-            {{ message }}
         </div>
 
+    </div>
+
+
+    <h2>Available Rides</h2>
+
+    {% if rides %}
+
+    <div class="results">
+
+        {% for ride in rides %}
+
+        {% set company = ride.get("Company", ride.get("App", "Ride")) %}
+        {% set company_lower = company|string|lower %}
+
+        <div class="ride-card">
+
+            <span class="badge">
+                {{ ride.get("Vehicle", vehicle) }}
+            </span>
+
+            <h2>{{ company }}</h2>
+
+            <div class="price">
+                ₹{{ ride.get("Price", ride.get("Fare", "N/A")) }}
+            </div>
+
+            <div class="info">
+                <strong>⏱ Time:</strong>
+                {{ ride.get("Time", ride.get("Trip Duration", "N/A")) }}
+            </div>
+
+            <div class="info">
+                <strong>📍 Distance:</strong>
+                {{ ride.get("Distance", "N/A") }}
+            </div>
+
+            <div class="info">
+                <strong>⭐ Rating:</strong>
+                {{ ride.get("Rating", "N/A") }}
+            </div>
+
+            <div class="review">
+                <strong>Review:</strong>
+                {{ ride.get("Review", "N/A") }}
+            </div>
+
+
+            {% if "rapido" in company_lower %}
+
+            <a href="https://www.rapido.bike/"
+               target="_blank"
+               class="view-btn">
+                View in Rapido
+            </a>
+
+
+            {% elif "uber" in company_lower %}
+
+            <a href="https://m.uber.com/"
+               target="_blank"
+               class="view-btn">
+                View in Uber
+            </a>
+
+
+            {% elif "ola" in company_lower %}
+
+            <a href="https://book.olacabs.com/"
+               target="_blank"
+               class="view-btn">
+                View in Ola
+            </a>
+
+
+            {% endif %}
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="no-results">
+        <h3>No rides found</h3>
+        <p>Please go back and try another vehicle or location.</p>
+    </div>
+
     {% endif %}
 
 
-    {% if results %}
+    {% if recommendations %}
 
-        <h2>Ride Details</h2>
+    <div class="recommendations">
 
-        <table>
+        <h2>🏆 Ride Recommendations</h2>
 
-            <thead>
-                <tr>
+        {% if recommendations.best_overall %}
+        <p>
+            <strong>Best Overall Ride:</strong>
+            {{ recommendations.best_overall }}
+        </p>
+        {% endif %}
 
-                    {% for key in results[0].keys() %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
+        {% if recommendations.lowest_price %}
+        <p>
+            <strong>Lowest Price:</strong>
+            {{ recommendations.lowest_price }}
+        </p>
+        {% endif %}
 
-                </tr>
-            </thead>
+        {% if recommendations.fastest %}
+        <p>
+            <strong>Fastest Ride:</strong>
+            {{ recommendations.fastest }}
+        </p>
+        {% endif %}
 
-            <tbody>
+        {% if recommendations.highest_rated %}
+        <p>
+            <strong>Highest Rated Ride:</strong>
+            {{ recommendations.highest_rated }}
+        </p>
+        {% endif %}
 
-                {% for row in results %}
-
-                    <tr>
-
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-
-                    </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
+    </div>
 
     {% endif %}
+
+
+    <a href="/" class="home-btn">
+        ← Back to Ride Hub
+    </a>
 
 </div>
 
 </body>
-</html>s
+</html>
