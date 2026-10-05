@@ -1,178 +1,427 @@
 
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, render_template_string
+from flask import request, jsonify, session, redirect, url_for
 import requests
-import sqlite3
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "ridehub_secret_key_123"
-
-DATABASE = "ridehub.db"
 
 HEADERS = {
     "User-Agent": "RideHub-College-Project/1.0"
 }
 
 PHOTON_URL = "https://photon.komoot.io/api"
-NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse"
 OSRM_URL = "https://router.project-osrm.org/route/v1/driving"
 
+users = {}
+
 
 # =========================================================
-# DATABASE
+# LOGIN PAGE
 # =========================================================
 
-def get_db():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
+LOGIN_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ride Hub - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e8f1ff, #f8fbff);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box {
+            width: 90%;
+            max-width: 420px;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1769ff;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #1769ff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0d55d8;
+        }
+
+        .create {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .create a {
+            color: #1769ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .error {
+            background: #ffe7e7;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>🚗 Ride Hub</h1>
+
+    <div class="subtitle">
+        Compare your rides easily
+    </div>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+        >
+
+        <button type="submit">
+            Login
+        </button>
+
+    </form>
+
+    <div class="create">
+        Don't have an account?
+        <a href="/create-account">Create Account</a>
+    </div>
+
+</div>
+
+</body>
+</html>
+"""
 
 
-def init_db():
-    conn = get_db()
+# =========================================================
+# CREATE ACCOUNT PAGE
+# =========================================================
 
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        )
-    """)
+CREATE_ACCOUNT_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Account - Ride Hub</title>
 
-    conn.commit()
-    conn.close()
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <style>
 
-init_db()
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e8f1ff, #f8fbff);
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .box {
+            width: 90%;
+            max-width: 420px;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1769ff;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+
+            border: 1px solid #ccc;
+            border-radius: 10px;
+
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+
+            border: none;
+            border-radius: 10px;
+
+            background: #1769ff;
+            color: white;
+
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0d55d8;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .back a {
+            color: #1769ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .error {
+            background: #ffe7e7;
+            color: #c62828;
+
+            padding: 10px;
+            border-radius: 8px;
+
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .success {
+            background: #e5f8e9;
+            color: #218838;
+
+            padding: 10px;
+            border-radius: 8px;
+
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>🚗 Create Account</h1>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if success %}
+        <div class="success">{{ success }}</div>
+    {% endif %}
+
+    <form method="POST">
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Create password"
+            required
+        >
+
+        <input
+            type="password"
+            name="confirm_password"
+            placeholder="Confirm password"
+            required
+        >
+
+        <button type="submit">
+            Create Account
+        </button>
+
+    </form>
+
+    <div class="back">
+        Already have an account?
+        <a href="/login">Login</a>
+    </div>
+
+</div>
+
+</body>
+</html>
+"""
 
 
 # =========================================================
 # LOGIN
 # =========================================================
 
-@app.route("/")
+@app.route("/login", methods=["GET", "POST"])
 def login_page():
 
-    if "user_id" in session:
-        return redirect(url_for("home"))
+    if request.method == "POST":
 
-    return render_template("login.html")
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if email == "admin@gmail.com" and password == "admin123":
+            session["user"] = email
+            return redirect(url_for("home"))
+
+        if email in users and users[email] == password:
+            session["user"] = email
+            return redirect(url_for("home"))
+
+        return render_template_string(
+            LOGIN_HTML,
+            error="Invalid email or password."
+        )
+
+    return render_template_string(
+        LOGIN_HTML,
+        error=None
+    )
 
 
-@app.route("/login", methods=["POST"])
-def login_user():
+# =========================================================
+# LOGIN ALIAS
+# =========================================================
 
-    email = request.form.get("email", "").strip()
-    password = request.form.get("password", "")
+app.add_url_rule(
+    "/login-page",
+    endpoint="login",
+    view_func=login_page,
+    methods=["GET", "POST"]
+)
 
-    if not email or not password:
-        return """
-        <script>
-            alert("Please enter email and password.");
-            window.location.href="/";
-        </script>
-        """
 
-    conn = get_db()
+# =========================================================
+# CREATE ACCOUNT
+# =========================================================
 
-    user = conn.execute(
-        "SELECT * FROM users WHERE email = ?",
-        (email,)
-    ).fetchone()
+@app.route("/create-account", methods=["GET", "POST"])
+def create_account():
 
-    conn.close()
+    if request.method == "POST":
 
-    if user and check_password_hash(
-        user["password"],
-        password
-    ):
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get(
+            "confirm_password",
+            ""
+        )
 
-        session["user_id"] = user["id"]
-        session["email"] = user["email"]
+        if not email or not password:
+            return render_template_string(
+                CREATE_ACCOUNT_HTML,
+                error="Please fill all fields.",
+                success=None
+            )
 
-        return redirect(url_for("home"))
+        if password != confirm_password:
+            return render_template_string(
+                CREATE_ACCOUNT_HTML,
+                error="Passwords do not match.",
+                success=None
+            )
 
-    return """
-    <script>
-        alert("Invalid email or password.");
-        window.location.href="/";
-    </script>
-    """
+        if email in users:
+            return render_template_string(
+                CREATE_ACCOUNT_HTML,
+                error="Account already exists.",
+                success=None
+            )
+
+        users[email] = password
+
+        return redirect(url_for("login_page"))
+
+    return render_template_string(
+        CREATE_ACCOUNT_HTML,
+        error=None,
+        success=None
+    )
 
 
 # =========================================================
 # REGISTER
 # =========================================================
 
-@app.route("/register")
-def register_page():
+@app.route("/register", methods=["GET", "POST"])
+def register():
 
-    if "user_id" in session:
-        return redirect(url_for("home"))
-
-    return render_template("register.html")
-
-
-@app.route("/create_account", methods=["POST"])
-def create_account():
-
-    email = request.form.get("email", "").strip()
-    password = request.form.get("password", "")
-    confirm_password = request.form.get(
-        "confirm_password",
-        ""
-    )
-
-    if not email or not password or not confirm_password:
-        return """
-        <script>
-            alert("Please fill all fields.");
-            window.location.href="/register";
-        </script>
-        """
-
-    if password != confirm_password:
-        return """
-        <script>
-            alert("Passwords do not match.");
-            window.location.href="/register";
-        </script>
-        """
-
-    conn = get_db()
-
-    existing = conn.execute(
-        "SELECT id FROM users WHERE email = ?",
-        (email,)
-    ).fetchone()
-
-    if existing:
-
-        conn.close()
-
-        return """
-        <script>
-            alert("Email already registered. Please login.");
-            window.location.href="/";
-        </script>
-        """
-
-    hashed_password = generate_password_hash(password)
-
-    conn.execute(
-        "INSERT INTO users (email, password) VALUES (?, ?)",
-        (email, hashed_password)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return """
-    <script>
-        alert("Account created successfully!");
-        window.location.href="/";
-    </script>
-    """
+    return create_account()
 
 
 # =========================================================
@@ -184,42 +433,32 @@ def logout():
 
     session.clear()
 
-    return redirect(
-        url_for("login_page")
-    )
+    return redirect(url_for("login_page"))
 
 
 # =========================================================
 # HOME
 # =========================================================
 
-@app.route("/home")
+@app.route("/")
 def home():
 
-    if "user_id" not in session:
-        return redirect(
-            url_for("login_page")
-        )
+    if "user" not in session:
+        return redirect(url_for("login_page"))
 
-    return render_template(
-        "index.html",
-        email=session.get("email")
-    )
+    return render_template("index.html")
 
 
 # =========================================================
-# LOCATION SEARCH
+# LOCATION SEARCH / AUTOCOMPLETE
 # =========================================================
 
-@app.route("/search_location")
-def search_location():
+@app.route("/location-suggestions")
+def location_suggestions():
 
-    query = request.args.get(
-        "q",
-        ""
-    ).strip()
+    query = request.args.get("q", "").strip()
 
-    if not query:
+    if len(query) < 2:
         return jsonify([])
 
     try:
@@ -231,227 +470,109 @@ def search_location():
                 "limit": 6
             },
             headers=HEADERS,
-            timeout=10
+            timeout=8
         )
 
-        response.raise_for_status()
+        if response.status_code != 200:
+            return jsonify([])
 
         data = response.json()
 
-        results = []
+        suggestions = []
 
-        for feature in data.get(
-            "features",
-            []
-        ):
+        for feature in data.get("features", []):
 
             properties = feature.get(
                 "properties",
                 {}
             )
 
-            geometry = feature.get(
-                "geometry",
-                {}
+            name = properties.get("name", "")
+
+            city = (
+                properties.get("city")
+                or properties.get("town")
+                or properties.get("village")
+                or ""
             )
 
-            coordinates = geometry.get(
-                "coordinates",
-                []
+            state = properties.get(
+                "state",
+                ""
             )
 
-            if len(coordinates) < 2:
-                continue
-
-            lng = coordinates[0]
-            lat = coordinates[1]
+            country = properties.get(
+                "country",
+                ""
+            )
 
             parts = []
 
-            for key in [
-                "name",
-                "street",
-                "district",
-                "city",
-                "state",
-                "country"
-            ]:
+            for part in [name, city, state, country]:
 
-                value = properties.get(key)
+                if part and part not in parts:
+                    parts.append(str(part))
 
-                if value and str(value) not in parts:
-                    parts.append(str(value))
+            address = ", ".join(parts)
 
-            name = ", ".join(parts)
+            if address and address not in suggestions:
+                suggestions.append(address)
 
-            if not name:
-                name = query
+        return jsonify(suggestions[:6])
 
-            results.append({
-                "name": name,
-                "lat": lat,
-                "lng": lng
-            })
-
-        return jsonify(results)
-
-    except Exception as e:
-
-        print(
-            "Location search error:",
-            e
-        )
-
+    except Exception:
         return jsonify([])
 
 
 # =========================================================
-# LIVE LOCATION
+# GEOCODING
 # =========================================================
 
-@app.route("/reverse_location")
-def reverse_location():
+def get_coordinates(location):
 
-    lat = request.args.get(
-        "lat",
-        ""
-    ).strip()
-
-    lng = request.args.get(
-        "lng",
-        ""
-    ).strip()
-
-    if not lat or not lng:
-
-        return jsonify({
-            "success": False,
-            "name": "Unable to find current location"
-        })
-
-    # Photon reverse geocoding
     try:
 
         response = requests.get(
             PHOTON_URL,
             params={
-                "lat": lat,
-                "lon": lng
+                "q": location,
+                "limit": 1
             },
             headers=HEADERS,
             timeout=10
         )
 
-        if response.ok:
+        if response.status_code != 200:
+            return None
 
-            data = response.json()
+        data = response.json()
 
-            features = data.get(
-                "features",
-                []
-            )
-
-            if features:
-
-                properties = features[0].get(
-                    "properties",
-                    {}
-                )
-
-                parts = []
-
-                for key in [
-                    "name",
-                    "street",
-                    "district",
-                    "city",
-                    "state",
-                    "country"
-                ]:
-
-                    value = properties.get(key)
-
-                    if value and str(value) not in parts:
-                        parts.append(str(value))
-
-                if parts:
-
-                    return jsonify({
-                        "success": True,
-                        "name": ", ".join(parts)
-                    })
-
-    except Exception as e:
-
-        print(
-            "Photon reverse error:",
-            e
+        features = data.get(
+            "features",
+            []
         )
 
-    # Nominatim fallback
-    try:
+        if not features:
+            return None
 
-        response = requests.get(
-            NOMINATIM_URL,
-            params={
-                "lat": lat,
-                "lon": lng,
-                "format": "json",
-                "addressdetails": 1,
-                "zoom": 18
-            },
-            headers=HEADERS,
-            timeout=10
+        coordinates = features[0].get(
+            "geometry",
+            {}
+        ).get(
+            "coordinates",
+            []
         )
 
-        if response.ok:
+        if len(coordinates) < 2:
+            return None
 
-            data = response.json()
+        longitude = coordinates[0]
+        latitude = coordinates[1]
 
-            address = data.get(
-                "address",
-                {}
-            )
+        return latitude, longitude
 
-            parts = []
-
-            for key in [
-                "house_number",
-                "road",
-                "neighbourhood",
-                "suburb",
-                "city_district",
-                "city",
-                "town",
-                "village",
-                "state",
-                "postcode",
-                "country"
-            ]:
-
-                value = address.get(key)
-
-                if value and str(value) not in parts:
-                    parts.append(str(value))
-
-            if parts:
-
-                return jsonify({
-                    "success": True,
-                    "name": ", ".join(parts)
-                })
-
-    except Exception as e:
-
-        print(
-            "Nominatim error:",
-            e
-        )
-
-    return jsonify({
-        "success": False,
-        "name": "Current location found, but address unavailable"
-    })
+    except Exception:
+        return None
 
 
 # =========================================================
@@ -460,19 +581,18 @@ def reverse_location():
 
 def get_route(
     source_lat,
-    source_lng,
+    source_lon,
     destination_lat,
-    destination_lng
+    destination_lon
 ):
 
     try:
 
-        coordinates = (
-            f"{source_lng},{source_lat};"
-            f"{destination_lng},{destination_lat}"
+        url = (
+            f"{OSRM_URL}/"
+            f"{source_lon},{source_lat};"
+            f"{destination_lon},{destination_lat}"
         )
-
-        url = f"{OSRM_URL}/{coordinates}"
 
         response = requests.get(
             url,
@@ -483,7 +603,8 @@ def get_route(
             timeout=15
         )
 
-        response.raise_for_status()
+        if response.status_code != 200:
+            return None
 
         data = response.json()
 
@@ -495,95 +616,91 @@ def get_route(
         if not routes:
             return None
 
-        route = routes[0]
-
-        distance = route["distance"] / 1000
-        time = route["duration"] / 60
-
-        return {
-            "distance": round(
-                distance,
-                2
-            ),
-            "time": max(
-                5,
-                round(time)
-            )
-        }
-
-    except Exception as e:
-
-        print(
-            "Route error:",
-            e
+        distance_km = (
+            routes[0]["distance"] / 1000
         )
 
+        duration_min = (
+            routes[0]["duration"] / 60
+        )
+
+        return (
+            round(distance_km, 2),
+            round(duration_min)
+        )
+
+    except Exception:
         return None
 
 
 # =========================================================
-# FARE DATA
+# VEHICLE DATA
 # =========================================================
 
-FARE_DATA = {
+VEHICLE_DATA = {
 
-    "Rapido": {
-        "Bike": {
+    "Bike": {
+
+        "Rapido": {
+            "base": 25,
+            "per_km": 8.0
+        },
+
+        "Uber": {
             "base": 30,
-            "per_km": 9.0
+            "per_km": 8.5
         },
-        "Auto": {
+
+        "Ola": {
+            "base": 28,
+            "per_km": 8.2
+        }
+    },
+
+    "Auto": {
+
+        "Rapido": {
+            "base": 35,
+            "per_km": 14.0
+        },
+
+        "Uber": {
             "base": 40,
-            "per_km": 13.0
+            "per_km": 15.0
         },
-        "Car": {
-            "base": 80,
-            "per_km": 18.0
+
+        "Ola": {
+            "base": 38,
+            "per_km": 14.5
         }
     },
 
-    "Uber": {
-        "Bike": {
-            "base": 32,
-            "per_km": 9.5
-        },
-        "Auto": {
-            "base": 42,
-            "per_km": 13.5
-        },
-        "Car": {
-            "base": 85,
-            "per_km": 18.5
-        }
-    },
+    "Car": {
 
-    "Ola": {
-        "Bike": {
-            "base": 34,
-            "per_km": 9.2
+        "Rapido": {
+            "base": 60,
+            "per_km": 22.0
         },
-        "Auto": {
-            "base": 43,
-            "per_km": 13.2
+
+        "Uber": {
+            "base": 70,
+            "per_km": 24.0
         },
-        "Car": {
-            "base": 82,
-            "per_km": 18.2
+
+        "Ola": {
+            "base": 65,
+            "per_km": 23.0
         }
     }
 }
 
 
-# =========================================================
-# RATING DATA
-# =========================================================
-
-RATING_DATA = {
+RATINGS = {
 
     "Rapido": {
         "Bike": 4.5,
-        "Auto": 4.3,
-        "Car": 4.4
+        "Auto": 4.4,
+        "Car": 4.3
     },
 
     "Uber": {
@@ -593,9 +710,9 @@ RATING_DATA = {
     },
 
     "Ola": {
-        "Bike": 4.4,
+        "Bike": 4.3,
         "Auto": 4.4,
-        "Car": 4.5
+        "Car": 4.4
     }
 }
 
@@ -607,92 +724,224 @@ RATING_DATA = {
 def calculate_fare(
     company,
     vehicle,
-    distance
-):
-
-    data = FARE_DATA[
-        company
-    ][vehicle]
-
-    price = (
-        data["base"]
-        +
-        distance * data["per_km"]
-    )
-
-    variation = int(
-        distance * 7
-    ) % 8
-
-    price += variation
-
-    return max(
-        30,
-        round(price)
-    )
-
-
-# =========================================================
-# TIME CALCULATION
-# =========================================================
-
-def calculate_time(
-    base_time,
-    company,
-    vehicle
-):
-
-    company_adjustment = {
-        "Rapido": 0,
-        "Uber": 1,
-        "Ola": -1
-    }
-
-    vehicle_adjustment = {
-        "Bike": 0,
-        "Auto": 2,
-        "Car": 3
-    }
-
-    time = (
-        base_time
-        + company_adjustment[company]
-        + vehicle_adjustment[vehicle]
-    )
-
-    return max(
-        5,
-        round(time)
-    )
-
-
-# =========================================================
-# REVIEW
-# =========================================================
-
-def get_review(rating):
-
-    if rating >= 4.6:
-        return "Excellent"
-
-    if rating >= 4.4:
-        return "Very Good"
-
-    if rating >= 4.2:
-        return "Good"
-
-    return "Average"
-
-
-# =========================================================
-# CREATE RIDES
-# =========================================================
-
-def create_rides(
     distance,
-    route_time,
-    selected_vehicle
+    route_factor
 ):
+
+    data = VEHICLE_DATA[
+        vehicle
+    ][company]
+
+    base = data["base"]
+    per_km = data["per_km"]
+
+    if company == "Rapido":
+
+        variation = (
+            (route_factor * 7 + 3)
+            % 41
+        ) - 20
+
+    elif company == "Uber":
+
+        variation = (
+            (route_factor * 13 + 9)
+            % 41
+        ) - 20
+
+    else:
+
+        variation = (
+            (route_factor * 19 + 15)
+            % 41
+        ) - 20
+
+    fare = (
+        base
+        + (distance * per_km)
+        + variation
+    )
+
+    minimum_fare = {
+
+        "Bike": 50,
+        "Auto": 70,
+        "Car": 120
+    }
+
+    fare = max(
+        minimum_fare[vehicle],
+        fare
+    )
+
+    return round(fare)
+
+# =========================================================
+# COMPARE RIDES
+# =========================================================
+
+@app.route("/compare", methods=["POST"])
+def compare():
+
+    if "user" not in session:
+        return redirect(url_for("login_page"))
+
+    source = request.form.get(
+        "source",
+        ""
+    ).strip()
+
+    destination = request.form.get(
+        "destination",
+        ""
+    ).strip()
+
+    vehicle = request.form.get(
+        "vehicleType",
+        ""
+    ).strip()
+
+    if not vehicle:
+        vehicle = request.form.get(
+            "vehicle",
+            ""
+        ).strip()
+
+    if not source or not destination:
+
+        return render_template(
+            "result.html",
+            rides=[],
+            source=source,
+            destination=destination,
+            vehicle=vehicle,
+            distance=0,
+            duration=0,
+            overall=None,
+            overall_suggestion=None,
+            cheapest=None,
+            fastest=None,
+            highest_rated=None,
+            error="Please enter pickup and destination."
+        )
+
+    # -----------------------------------------------------
+    # GET PICKUP COORDINATES
+    # -----------------------------------------------------
+
+    source_coordinates = get_coordinates(
+        source
+    )
+
+    if not source_coordinates:
+
+        return render_template(
+            "result.html",
+            rides=[],
+            source=source,
+            destination=destination,
+            vehicle=vehicle,
+            distance=0,
+            duration=0,
+            overall=None,
+            overall_suggestion=None,
+            cheapest=None,
+            fastest=None,
+            highest_rated=None,
+            error="Pickup location could not be found."
+        )
+
+    # -----------------------------------------------------
+    # GET DESTINATION COORDINATES
+    # -----------------------------------------------------
+
+    destination_coordinates = get_coordinates(
+        destination
+    )
+
+    if not destination_coordinates:
+
+        return render_template(
+            "result.html",
+            rides=[],
+            source=source,
+            destination=destination,
+            vehicle=vehicle,
+            distance=0,
+            duration=0,
+            overall=None,
+            overall_suggestion=None,
+            cheapest=None,
+            fastest=None,
+            highest_rated=None,
+            error="Destination location could not be found."
+        )
+
+    # -----------------------------------------------------
+    # GET ROUTE
+    # -----------------------------------------------------
+
+    route = get_route(
+        source_coordinates[0],
+        source_coordinates[1],
+        destination_coordinates[0],
+        destination_coordinates[1]
+    )
+
+    if not route:
+
+        return render_template(
+            "result.html",
+            rides=[],
+            source=source,
+            destination=destination,
+            vehicle=vehicle,
+            distance=0,
+            duration=0,
+            overall=None,
+            overall_suggestion=None,
+            cheapest=None,
+            fastest=None,
+            highest_rated=None,
+            error="Could not calculate the route."
+        )
+
+    distance, duration = route
+
+    # -----------------------------------------------------
+    # VEHICLES
+    # -----------------------------------------------------
+
+    if vehicle.lower() in [
+        "all",
+        "all vehicles"
+    ]:
+
+        vehicles = [
+            "Bike",
+            "Auto",
+            "Car"
+        ]
+
+    elif vehicle in [
+        "Bike",
+        "Auto",
+        "Car"
+    ]:
+
+        vehicles = [vehicle]
+
+    else:
+
+        vehicles = [
+            "Bike",
+            "Auto",
+            "Car"
+        ]
+
+    # -----------------------------------------------------
+    # COMPANIES
+    # -----------------------------------------------------
 
     companies = [
         "Rapido",
@@ -700,74 +949,153 @@ def create_rides(
         "Ola"
     ]
 
-    all_vehicles = [
-        "Bike",
-        "Auto",
-        "Car"
-    ]
-
-    if selected_vehicle == "All Vehicles":
-
-        vehicle_list = [
-            "Bike",
-            "Auto",
-            "Car"
-        ]
-
-    elif selected_vehicle in all_vehicles:
-
-        vehicle_list = [
-            selected_vehicle
-        ]
-
-    else:
-
-        vehicle_list = [
-            "Bike",
-            "Auto",
-            "Car"
-        ]
-
     rides = []
 
-    for company in companies:
+    # Create a route-specific number.
+    # This makes the simulated prices/time different
+    # for different source and destination locations.
 
-        for vehicle in vehicle_list:
+    route_text = (
+        source.lower()
+        + "|"
+        + destination.lower()
+    )
 
-            price = calculate_fare(
+    route_factor = sum(
+        ord(character)
+        for character in route_text
+    )
+
+    # -----------------------------------------------------
+    # CREATE ALL RIDES
+    # -----------------------------------------------------
+
+    for current_vehicle in vehicles:
+
+        for company in companies:
+
+            # -----------------------------
+            # TIME VARIATION
+            # -----------------------------
+
+            if company == "Rapido":
+
+                time_variation = (
+                    (route_factor * 3 + 1)
+                    % 9
+                ) - 4
+
+            elif company == "Uber":
+
+                time_variation = (
+                    (route_factor * 11 + 4)
+                    % 9
+                ) - 4
+
+            else:
+
+                time_variation = (
+                    (route_factor * 17 + 7)
+                    % 9
+                ) - 4
+
+            ride_time = max(
+                5,
+                duration + time_variation
+            )
+
+            # -----------------------------
+            # PRICE
+            # -----------------------------
+
+            fare = calculate_fare(
                 company,
-                vehicle,
-                distance
+                current_vehicle,
+                distance,
+                route_factor
             )
 
-            time = calculate_time(
-                route_time,
-                company,
-                vehicle
+            # -----------------------------
+            # RATING
+            # -----------------------------
+
+            if company == "Rapido":
+
+                rating_change = (
+                    (
+                        (route_factor * 5 + 1)
+                        % 9
+                    ) - 4
+                ) * 0.03
+
+            elif company == "Uber":
+
+                rating_change = (
+                    (
+                        (route_factor * 7 + 3)
+                        % 9
+                    ) - 4
+                ) * 0.03
+
+            else:
+
+                rating_change = (
+                    (
+                        (route_factor * 11 + 5)
+                        % 9
+                    ) - 4
+                ) * 0.03
+
+            rating = round(
+                max(
+                    4.0,
+                    min(
+                        4.9,
+                        RATINGS[
+                            company
+                        ][
+                            current_vehicle
+                        ] + rating_change
+                    )
+                ),
+                2
             )
 
-            rating = RATING_DATA[
-                company
-            ][vehicle]
+            # -----------------------------
+            # REVIEW
+            # -----------------------------
 
-            review = get_review(
-                rating
-            )
+            if rating >= 4.6:
+
+                review = "Excellent"
+
+            elif rating >= 4.4:
+
+                review = "Very Good"
+
+            elif rating >= 4.2:
+
+                review = "Good"
+
+            else:
+
+                review = "Average"
 
             rides.append({
 
                 "company": company,
 
-                "vehicle": vehicle,
+                "vehicle": current_vehicle,
 
-                "price": price,
+                "price": fare,
 
-                "distance": round(
-                    distance,
-                    2
-                ),
+                "fare": fare,
 
-                "time": time,
+                "time": ride_time,
+
+                "duration": ride_time,
+
+                "distance": distance,
 
                 "rating": rating,
 
@@ -777,389 +1105,392 @@ def create_rides(
 
             })
 
-    return rides
+    # =====================================================
+    # FIND OVERALL BEST RIDE
+    # =====================================================
 
-# =========================================================
-# OVERALL BEST RIDE
-# =========================================================
+    overall = None
+    cheapest = None
+    fastest = None
+    highest_rated = None
 
-def calculate_overall(rides):
+    if rides:
 
-    if not rides:
-        return None
+        # ---------------------------------------------
+        # PRICE RANGE
+        # ---------------------------------------------
 
-    min_price = min(
-        ride["price"]
-        for ride in rides
-    )
+        prices = [
+            ride["price"]
+            for ride in rides
+        ]
 
-    max_price = max(
-        ride["price"]
-        for ride in rides
-    )
+        min_price = min(prices)
+        max_price = max(prices)
 
-    min_time = min(
-        ride["time"]
-        for ride in rides
-    )
+        # ---------------------------------------------
+        # TIME RANGE
+        # ---------------------------------------------
 
-    max_time = max(
-        ride["time"]
-        for ride in rides
-    )
+        times = [
+            ride["time"]
+            for ride in rides
+        ]
 
-    min_rating = min(
-        ride["rating"]
-        for ride in rides
-    )
+        min_time = min(times)
+        max_time = max(times)
 
-    max_rating = max(
-        ride["rating"]
-        for ride in rides
-    )
+        # ---------------------------------------------
+        # RATING RANGE
+        # ---------------------------------------------
 
-    for ride in rides:
+        ratings = [
+            ride["rating"]
+            for ride in rides
+        ]
 
-        # PRICE SCORE
-        if max_price == min_price:
-            price_score = 1
-        else:
-            price_score = (
-                max_price - ride["price"]
-            ) / (
-                max_price - min_price
-            )
+        min_rating = min(ratings)
+        max_rating = max(ratings)
 
-        # TIME SCORE
-        if max_time == min_time:
-            time_score = 1
-        else:
-            time_score = (
-                max_time - ride["time"]
-            ) / (
-                max_time - min_time
-            )
+        # ---------------------------------------------
+        # BALANCED SCORE
+        # ---------------------------------------------
 
-        # RATING SCORE
-        if max_rating == min_rating:
-            rating_score = 1
-        else:
-            rating_score = (
-                ride["rating"] - min_rating
-            ) / (
-                max_rating - min_rating
-            )
+        for ride in rides:
 
-        # OVERALL SCORE
-        ride["score"] = round(
-            (
-                price_score * 0.40
+            # PRICE SCORE
+            if max_price == min_price:
+
+                price_score = 100
+
+            else:
+
+                price_score = (
+                    (
+                        max_price
+                        - ride["price"]
+                    )
+                    /
+                    (
+                        max_price
+                        - min_price
+                    )
+                ) * 100
+
+            # TIME SCORE
+            if max_time == min_time:
+
+                time_score = 100
+
+            else:
+
+                time_score = (
+                    (
+                        max_time
+                        - ride["time"]
+                    )
+                    /
+                    (
+                        max_time
+                        - min_time
+                    )
+                ) * 100
+
+            # RATING SCORE
+            if max_rating == min_rating:
+
+                rating_score = 100
+
+            else:
+
+                rating_score = (
+                    (
+                        ride["rating"]
+                        - min_rating
+                    )
+                    /
+                    (
+                        max_rating
+                        - min_rating
+                    )
+                ) * 100
+
+            # Balanced score:
+            #
+            # Price  = 35%
+            # Time   = 30%
+            # Rating = 35%
+
+            final_score = (
+                price_score * 0.35
                 +
                 time_score * 0.30
                 +
-                rating_score * 0.30
-            ) * 100,
-            2
-        )
+                rating_score * 0.35
+            )
 
-    return max(
-        rides,
-        key=lambda ride: ride["score"]
-    )
-
-
-# =========================================================
-# COMPARE RIDES
-# =========================================================
-
-@app.route(
-    "/compare",
-    methods=["POST"]
-)
-def compare():
-
-    if "user_id" not in session:
-
-        return redirect(
-            url_for("login_page")
-        )
-
-    try:
+            ride["score"] = round(
+                final_score,
+                2
+            )
 
         # -------------------------------------------------
-        # PICKUP LOCATION
+        # ONE OVERALL WINNER
         # -------------------------------------------------
 
-        source = (
-            request.form.get("source")
-            or request.form.get("pickup")
-            or request.form.get("from")
-            or ""
-        ).strip()
-
-        # -------------------------------------------------
-        # DESTINATION
-        # -------------------------------------------------
-
-        destination = (
-            request.form.get("destination")
-            or request.form.get("drop")
-            or request.form.get("to")
-            or ""
-        ).strip()
-
-        # -------------------------------------------------
-        # VEHICLE
-        # -------------------------------------------------
-
-        vehicle = (
-            request.form.get("vehicle")
-            or request.form.get("vehicleType")
-            or request.form.get("vehicle_type")
-            or "All Vehicles"
-        ).strip()
-
-        # -------------------------------------------------
-        # PICKUP COORDINATES
-        # -------------------------------------------------
-
-        source_lat = (
-            request.form.get("source_lat")
-            or request.form.get("pickup_lat")
-            or request.form.get("sourceLat")
-        )
-
-        source_lng = (
-            request.form.get("source_lng")
-            or request.form.get("pickup_lng")
-            or request.form.get("sourceLng")
+        overall = max(
+            rides,
+            key=lambda ride: ride["score"]
         )
 
         # -------------------------------------------------
-        # DESTINATION COORDINATES
+        # OTHER HIGHLIGHTS
         # -------------------------------------------------
 
-        destination_lat = (
-            request.form.get("destination_lat")
-            or request.form.get("drop_lat")
-            or request.form.get("destinationLat")
-        )
-
-        destination_lng = (
-            request.form.get("destination_lng")
-            or request.form.get("drop_lng")
-            or request.form.get("destinationLng")
-        )
-
-        # -------------------------------------------------
-        # CHECK PICKUP
-        # -------------------------------------------------
-
-        if not source:
-
-            return """
-            <script>
-                alert("Please enter pickup location.");
-                window.history.back();
-            </script>
-            """
-
-        # -------------------------------------------------
-        # CHECK DESTINATION
-        # -------------------------------------------------
-
-        if not destination:
-
-            return """
-            <script>
-                alert("Please enter destination.");
-                window.history.back();
-            </script>
-            """
-
-        # -------------------------------------------------
-        # CHECK COORDINATES
-        # -------------------------------------------------
-
-        if (
-            source_lat is None
-            or source_lng is None
-            or destination_lat is None
-            or destination_lng is None
-        ):
-
-            return """
-            <script>
-                alert(
-                    "Please select pickup and destination from the suggestions."
-                );
-                window.history.back();
-            </script>
-            """
-
-        # -------------------------------------------------
-        # CONVERT COORDINATES
-        # -------------------------------------------------
-
-        source_lat = float(
-            source_lat
-        )
-
-        source_lng = float(
-            source_lng
-        )
-
-        destination_lat = float(
-            destination_lat
-        )
-
-        destination_lng = float(
-            destination_lng
-        )
-
-        # -------------------------------------------------
-        # GET REAL ROUTE
-        # -------------------------------------------------
-
-        route = get_route(
-            source_lat,
-            source_lng,
-            destination_lat,
-            destination_lng
-        )
-
-        if route is None:
-
-            return """
-            <script>
-                alert(
-                    "Unable to calculate route. Please try again."
-                );
-                window.history.back();
-            </script>
-            """
-
-        distance = route["distance"]
-
-        route_time = route["time"]
-
-        # -------------------------------------------------
-        # CREATE RIDES
-        # -------------------------------------------------
-
-        rides = create_rides(
-            distance,
-            route_time,
-            vehicle
-        )
-
-        if not rides:
-
-            return """
-            <script>
-                alert("No rides found.");
-                window.history.back();
-            </script>
-            """
-
-        # -------------------------------------------------
-        # LOWEST PRICE
-        # -------------------------------------------------
-
-        lowest_price = min(
+        cheapest = min(
             rides,
             key=lambda ride: ride["price"]
         )
 
-        # -------------------------------------------------
-        # FASTEST RIDE
-        # -------------------------------------------------
-
-        fastest_ride = min(
+        fastest = min(
             rides,
             key=lambda ride: ride["time"]
         )
-
-        # -------------------------------------------------
-        # HIGHEST RATED
-        # -------------------------------------------------
 
         highest_rated = max(
             rides,
             key=lambda ride: ride["rating"]
         )
 
-        # -------------------------------------------------
-        # OVERALL BEST
-        # -------------------------------------------------
+    # =====================================================
+    # SEND DATA TO RESULT PAGE
+    # =====================================================
 
-        overall = calculate_overall(
-            rides
-        )
+    return render_template(
 
-        # -------------------------------------------------
-        # SHOW RESULT PAGE
-        # -------------------------------------------------
+        "result.html",
 
-        return render_template(
-            "result.html",
+        rides=rides,
 
-            source=source,
+        source=source,
 
-            destination=destination,
+        destination=destination,
 
-            vehicle=vehicle,
+        vehicle=vehicle,
 
-            distance=distance,
+        distance=distance,
 
-            route_time=route_time,
+        duration=duration,
 
-            rides=rides,
+        # ONLY ONE OVERALL WINNER
+        overall=overall,
 
-            overall=overall,
+        overall_suggestion=overall,
 
-            lowest_price=lowest_price,
+        cheapest=cheapest,
 
-            fastest_ride=fastest_ride,
+        fastest=fastest,
 
-            highest_rated=highest_rated
-        )
+        highest_rated=highest_rated,
 
-    except Exception as e:
-
-        print()
-        print("====================================")
-        print("COMPARE ERROR:")
-        print(e)
-        print("====================================")
-        print()
-
-        return """
-        <script>
-            alert(
-                "Unable to compare rides. Please check your pickup and destination."
-            );
-            window.history.back();
-        </script>
-        """
+        error=None
+    )
 
 
 # =========================================================
-# START FLASK
+# CURRENT LOCATION → ADDRESS
+# =========================================================
+
+@app.route("/reverse-location")
+def reverse_location():
+
+    latitude = request.args.get("lat")
+    longitude = request.args.get("lon")
+
+    if not latitude or not longitude:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Could not get your current location."
+
+        }), 400
+
+    try:
+
+        response = requests.get(
+
+            "https://nominatim.openstreetmap.org/reverse",
+
+            params={
+
+                "lat": latitude,
+
+                "lon": longitude,
+
+                "format": "json",
+
+                "zoom": 18,
+
+                "addressdetails": 1
+
+            },
+
+            headers={
+
+                "User-Agent":
+                    "RideHub-College-Project/1.0"
+
+            },
+
+            timeout=15
+
+        )
+
+        if response.status_code != 200:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "Could not find your address."
+
+            })
+
+        data = response.json()
+
+        address_data = data.get(
+            "address",
+            {}
+        )
+
+        parts = [
+
+            address_data.get(
+                "house_number"
+            ),
+
+            address_data.get(
+                "road"
+            ),
+
+            address_data.get(
+                "neighbourhood"
+            ),
+
+            address_data.get(
+                "suburb"
+            ),
+
+            address_data.get(
+                "village"
+            ),
+
+            address_data.get(
+                "town"
+            ),
+
+            address_data.get(
+                "city"
+            ),
+
+            address_data.get(
+                "district"
+            ),
+
+            address_data.get(
+                "state"
+            )
+
+        ]
+
+        clean_parts = []
+
+        for part in parts:
+
+            if (
+                part
+                and part not in clean_parts
+            ):
+
+                clean_parts.append(
+                    str(part)
+                )
+
+        readable_address = ", ".join(
+            clean_parts
+        )
+
+        if not readable_address:
+
+            readable_address = data.get(
+                "display_name",
+                "Current Location"
+            )
+
+        return jsonify({
+
+            "success": True,
+
+            "address": readable_address
+
+        })
+
+    except Exception:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Unable to find your current address."
+
+        })
+
+
+# =========================================================
+# HEALTH CHECK
+# =========================================================
+
+@app.route("/health")
+def health():
+
+    return jsonify({
+
+        "status":
+            "Ride Hub backend is running",
+
+        "login": True,
+
+        "comparison": True,
+
+        "location": True,
+
+        "suggestions": True
+
+    })
+
+
+# =========================================================
+# RUN SERVER
 # =========================================================
 
 if __name__ == "__main__":
 
     print()
-    print("====================================")
-    print("          RIDE HUB IS RUNNING")
-    print("====================================")
-    print()
-    print(
-        "Open: http://127.0.0.1:5000"
-    )
+    print("======================================")
+    print("          RIDE HUB BACKEND")
+    print("======================================")
+    print("Server running...")
+    print("Open: http://127.0.0.1:5000")
+    print("======================================")
     print()
 
     app.run(
+        host="0.0.0.0",
+        port=5000,
         debug=True
     )
