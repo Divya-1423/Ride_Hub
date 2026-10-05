@@ -3,16 +3,12 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <title>Ride Hub Results</title>
-
+    <title>Ride Hub - Results</title>
 
     <style>
 
@@ -20,558 +16,316 @@
             box-sizing: border-box;
         }
 
-
         body {
-
             margin: 0;
-
-            font-family:
-                Arial,
-                sans-serif;
-
-            background: #f3f4f6;
-
-            color: #111827;
+            font-family: Arial, sans-serif;
+            background: #f3f6fa;
+            color: #222;
         }
 
+        .header {
+            background: #111827;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .logout {
+            background: #ef4444;
+            color: white;
+            padding: 9px 16px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
 
         .container {
-
             width: 95%;
-
             max-width: 1200px;
-
-            margin: 30px auto;
+            margin: 25px auto;
         }
 
-
-        h1,
-        h2 {
-
-            text-align: center;
-        }
-
-
-        .route {
-
+        .route-box {
             background: white;
-
             padding: 20px;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 3px 12px
-                rgba(0,0,0,0.08);
-
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
             margin-bottom: 20px;
-
-            text-align: center;
         }
 
-
-        .route p {
-
-            margin: 8px;
-        }
-
-
-        .best {
-
-            background: white;
-
-            border:
-                3px solid #111827;
-
-            border-radius: 14px;
-
-            padding: 22px;
-
-            margin-bottom: 20px;
-
-            text-align: center;
-
-            box-shadow:
-                0 4px 15px
-                rgba(0,0,0,0.08);
-        }
-
-
-        .best h2 {
-
+        .route-box h2 {
             margin-top: 0;
         }
 
-
-        .best-name {
-
-            font-size: 24px;
-
-            font-weight: bold;
-
-            margin: 10px;
+        .route {
+            margin: 8px 0;
+            font-size: 16px;
         }
-
-
-        .best-price {
-
-            font-size: 25px;
-
-            font-weight: bold;
-        }
-
-
-        .best-details {
-
-            display: flex;
-
-            justify-content: center;
-
-            flex-wrap: wrap;
-
-            gap: 25px;
-
-            margin-top: 15px;
-        }
-
 
         .summary {
-
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
-
             margin-bottom: 25px;
         }
 
-
         .card {
-
             background: white;
-
             padding: 18px;
-
             border-radius: 12px;
-
-            text-align: center;
-
-            box-shadow:
-                0 3px 12px
-                rgba(0,0,0,0.07);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
         }
-
 
         .card h3 {
-
             margin-top: 0;
+            font-size: 16px;
         }
 
+        .card p {
+            margin: 7px 0;
+        }
 
-        .table-box {
+        .overall {
+            border: 2px solid #16a34a;
+        }
 
+        .rides-box {
             background: white;
-
             padding: 20px;
-
             border-radius: 12px;
-
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
             overflow-x: auto;
         }
 
-
-        .sort {
-
-            margin-bottom: 15px;
-
-            display: flex;
-
-            justify-content: flex-end;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
         }
 
+        th {
+            background: #111827;
+            color: white;
+            padding: 13px;
+            text-align: center;
+        }
 
-        select {
+        td {
+            padding: 13px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
 
-            padding: 10px;
+        tr:hover {
+            background: #f8fafc;
+        }
 
-            border:
-                1px solid #ccc;
-
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 11px 20px;
             border-radius: 7px;
         }
 
-
-        table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
-            min-width: 850px;
-        }
-
-
-        th {
-
-            background: #111827;
-
-            color: white;
-
-            padding: 13px;
-        }
-
-
-        td {
-
-            padding: 13px;
-
-            border:
-                1px solid #ddd;
-
-            text-align: center;
-        }
-
-
-        tr:hover {
-
-            background: #f9fafb;
-        }
-
-
-        .company {
-
-            font-weight: bold;
-        }
-
-
-        .back {
-
-            display: block;
-
-            width: 220px;
-
-            margin: 25px auto;
-
-            padding: 13px;
-
-            text-align: center;
-
-            text-decoration: none;
-
-            background: #111827;
-
-            color: white;
-
-            border-radius: 8px;
-        }
-
-
-        .error {
-
-            background: #fee2e2;
-
-            color: #991b1b;
-
-            padding: 15px;
-
-            border-radius: 8px;
-
-            text-align: center;
-
-            margin-bottom: 20px;
-        }
-
-
-        @media(max-width: 800px) {
+        @media (max-width: 800px) {
 
             .summary {
-
-                grid-template-columns: 1fr;
-
+                grid-template-columns: 1fr 1fr;
             }
 
+            .header {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
         }
 
     </style>
 
 </head>
 
-
 <body>
 
+    <div class="header">
 
-<div class="container">
+        <h1>🚕 Ride Hub</h1>
 
+        <a href="/logout" class="logout">
+            Logout
+        </a>
 
-    <h1>🚕 RIDE HUB RESULTS</h1>
-
-
-    {% if error %}
-
-        <div class="error">
-
-            ❌ {{ error }}
-
-        </div>
-
-    {% endif %}
+    </div>
 
 
+    <div class="container">
 
-    {% if results %}
 
+        <!-- ROUTE INFORMATION -->
 
-        <!-- ROUTE -->
+        <div class="route-box">
 
-        <div class="route">
+            <h2>🚗 Ride Comparison Results</h2>
 
-            <p>
-
-                📍
-                <strong>From:</strong>
-
+            <div class="route">
+                <strong>Pickup:</strong>
                 {{ source }}
+            </div>
 
-            </p>
-
-
-            <p>
-
-                🏁
-                <strong>To:</strong>
-
+            <div class="route">
+                <strong>Destination:</strong>
                 {{ destination }}
+            </div>
 
-            </p>
+            <div class="route">
+                <strong>Vehicle:</strong>
+                {{ vehicle }}
+            </div>
 
-
-            <p>
-
-                📏
-                <strong>Road Distance:</strong>
-
+            <div class="route">
+                <strong>Distance:</strong>
                 {{ distance }} km
-
-            </p>
-
-
-            <p>
-
-                ⏱️
-                <strong>Base Travel Time:</strong>
-
-                {{ base_minutes }} min
-
-            </p>
-
-        </div>
-
-
-
-        <!-- BEST OVERALL -->
-
-        <div class="best">
-
-            <h2>
-                🏆 OVERALL BEST RIDE
-            </h2>
-
-
-            <div class="best-name">
-
-                {{ best_overall.Company }}
-
-                -
-
-                {{ best_overall.Vehicle }}
-
             </div>
 
-
-            <div class="best-price">
-
-                ₹{{ best_overall.Price }}
-
-            </div>
-
-
-            <div class="best-details">
-
-                <span>
-                    📏
-                    {{ best_overall.Distance }}
-                    km
-                </span>
-
-
-                <span>
-                    ⏱️
-                    {{ best_overall.Time }}
-                    min
-                </span>
-
-
-                <span>
-                    ⭐
-                    {{ best_overall.Rating }}
-                </span>
-
-
-                <span>
-                    📝
-                    {{ best_overall.Review }}
-                </span>
-
-
-                <span>
-                    🎯
-                    Score:
-                    {{ best_overall["Overall Score"] }}
-                </span>
-
+            <div class="route">
+                <strong>Estimated Travel Time:</strong>
+                {{ route_time }} minutes
             </div>
 
         </div>
 
 
-
-        <!-- OTHER HIGHLIGHTS -->
+        <!-- SUMMARY CARDS -->
 
         <div class="summary">
 
 
-            <div class="card">
+            <!-- OVERALL BEST -->
 
-                <h3>
-                    💰 Lowest Price
-                </h3>
+            <div class="card overall">
+
+                <h3>🏆 Best Overall Ride</h3>
 
                 <p>
-
-                    {{ lowest_price.Company }}
-
-                    -
-
-                    {{ lowest_price.Vehicle }}
-
+                    <strong>
+                        {{ overall.company }}
+                    </strong>
                 </p>
 
-                <strong>
+                <p>
+                    Vehicle:
+                    {{ overall.vehicle }}
+                </p>
 
-                    ₹{{ lowest_price.Price }}
+                <p>
+                    Price:
+                    ₹{{ overall.price }}
+                </p>
 
-                </strong>
+                <p>
+                    Time:
+                    {{ overall.time }} min
+                </p>
+
+                <p>
+                    Rating:
+                    ⭐ {{ overall.rating }}
+                </p>
 
             </div>
 
 
+            <!-- LOWEST PRICE -->
 
             <div class="card">
 
-                <h3>
-                    ⚡ Fastest
-                </h3>
+                <h3>💰 Lowest Price</h3>
 
                 <p>
-
-                    {{ fastest.Company }}
-
-                    -
-
-                    {{ fastest.Vehicle }}
-
+                    <strong>
+                        {{ lowest_price.company }}
+                    </strong>
                 </p>
 
-                <strong>
+                <p>
+                    {{ lowest_price.vehicle }}
+                </p>
 
-                    {{ fastest.Time }} min
-
-                </strong>
+                <p>
+                    ₹{{ lowest_price.price }}
+                </p>
 
             </div>
 
 
+            <!-- FASTEST -->
 
             <div class="card">
 
-                <h3>
-                    ⭐ Highest Rated
-                </h3>
+                <h3>⚡ Fastest Ride</h3>
 
                 <p>
-
-                    {{ highest_rated.Company }}
-
-                    -
-
-                    {{ highest_rated.Vehicle }}
-
+                    <strong>
+                        {{ fastest_ride.company }}
+                    </strong>
                 </p>
 
-                <strong>
+                <p>
+                    {{ fastest_ride.vehicle }}
+                </p>
 
-                    {{ highest_rated.Rating }}
-
-                </strong>
+                <p>
+                    {{ fastest_ride.time }} minutes
+                </p>
 
             </div>
 
+
+            <!-- HIGHEST RATING -->
+
+            <div class="card">
+
+                <h3>⭐ Highest Rated</h3>
+
+                <p>
+                    <strong>
+                        {{ highest_rated.company }}
+                    </strong>
+                </p>
+
+                <p>
+                    {{ highest_rated.vehicle }}
+                </p>
+
+                <p>
+                    ⭐ {{ highest_rated.rating }}
+                </p>
+
+            </div>
 
         </div>
 
 
+        <!-- ALL RIDES -->
 
-        <!-- TABLE -->
+        <div class="rides-box">
 
-        <div class="table-box">
+            <h2>Available Rides</h2>
 
-
-            <h2>
-                📊 All Ride Comparisons
-            </h2>
-
-
-            <div class="sort">
-
-                <select
-                    id="sortSelect"
-                    onchange="sortTable()"
-                >
-
-                    <option value="default">
-                        Sort By
-                    </option>
-
-                    <option value="price">
-                        Price: Low → High
-                    </option>
-
-                    <option value="distance">
-                        Distance: Low → High
-                    </option>
-
-                    <option value="time">
-                        Time: Low → High
-                    </option>
-
-                    <option value="rating">
-                        Rating: High → Low
-                    </option>
-
-                    <option value="score">
-                        Overall Score: High → Low
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <table id="rideTable">
-
+            <table>
 
                 <thead>
 
@@ -591,7 +345,7 @@
 
                         <th>Review</th>
 
-                        <th>Overall Score</th>
+                        <th>Score</th>
 
                     </tr>
 
@@ -600,258 +354,60 @@
 
                 <tbody>
 
-
-                {% for ride in results %}
-
+                    {% for ride in rides %}
 
                     <tr>
 
-
-                        <td class="company">
-
-                            {{ ride.Company }}
-
+                        <td>
+                            <strong>
+                                {{ ride.company }}
+                            </strong>
                         </td>
-
 
                         <td>
-
-                            {% if ride.Vehicle == "Bike" %}
-                                🏍️
-                            {% elif ride.Vehicle == "Auto" %}
-                                🛺
-                            {% else %}
-                                🚗
-                            {% endif %}
-
-                            {{ ride.Vehicle }}
-
+                            {{ ride.vehicle }}
                         </td>
-
 
                         <td>
-
-                            ₹{{ ride.Price }}
-
+                            ₹{{ ride.price }}
                         </td>
-
 
                         <td>
-
-                            {{ ride.Distance }}
-                            km
-
+                            {{ ride.distance }} km
                         </td>
-
 
                         <td>
-
-                            {{ ride.Time }}
-                            min
-
+                            {{ ride.time }} min
                         </td>
-
 
                         <td>
-
-                            ⭐
-                            {{ ride.Rating }}
-
+                            ⭐ {{ ride.rating }}
                         </td>
-
 
                         <td>
-
-                            {{ ride.Review }}
-
+                            {{ ride.review }}
                         </td>
-
 
                         <td>
-
-                            {{ ride["Overall Score"] }}
-
+                            {{ ride.score }}
                         </td>
-
 
                     </tr>
 
-
-                {% endfor %}
-
+                    {% endfor %}
 
                 </tbody>
-
 
             </table>
 
         </div>
 
 
-
-        <a
-            href="/"
-            class="back"
-        >
-
-            ← Compare Another Ride
-
+        <a href="/home" class="back-btn">
+            ← Compare Again
         </a>
 
-
-    {% endif %}
-
-
-</div>
-
-
-
-<script>
-
-
-function sortTable() {
-
-    const type =
-        document.getElementById(
-            "sortSelect"
-        ).value;
-
-
-    const table =
-        document.getElementById(
-            "rideTable"
-        );
-
-
-    if (!table) {
-        return;
-    }
-
-
-    const tbody =
-        table.querySelector(
-            "tbody"
-        );
-
-
-    const rows =
-        Array.from(
-            tbody.querySelectorAll(
-                "tr"
-            )
-        );
-
-
-    rows.sort(
-        function(a, b) {
-
-
-            if (type === "price") {
-
-                return (
-                    getNumber(
-                        a.cells[2]
-                    )
-                    -
-                    getNumber(
-                        b.cells[2]
-                    )
-                );
-
-            }
-
-
-            if (type === "distance") {
-
-                return (
-                    getNumber(
-                        a.cells[3]
-                    )
-                    -
-                    getNumber(
-                        b.cells[3]
-                    )
-                );
-
-            }
-
-
-            if (type === "time") {
-
-                return (
-                    getNumber(
-                        a.cells[4]
-                    )
-                    -
-                    getNumber(
-                        b.cells[4]
-                    )
-                );
-
-            }
-
-
-            if (type === "rating") {
-
-                return (
-                    getNumber(
-                        b.cells[5]
-                    )
-                    -
-                    getNumber(
-                        a.cells[5]
-                    )
-                );
-
-            }
-
-
-            if (type === "score") {
-
-                return (
-                    getNumber(
-                        b.cells[7]
-                    )
-                    -
-                    getNumber(
-                        a.cells[7]
-                    )
-                );
-
-            }
-
-
-            return 0;
-
-        }
-    );
-
-
-    rows.forEach(
-        function(row) {
-
-            tbody.appendChild(row);
-
-        }
-    );
-
-}
-
-
-function getNumber(cell) {
-
-    return parseFloat(
-        cell.innerText.replace(
-            /[^0-9.]/g,
-            ""
-        )
-    ) || 0;
-
-}
-
-
-</script>
-
+    </div>
 
 </body>
 

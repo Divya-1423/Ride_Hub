@@ -25,7 +25,7 @@ body {
     color: #222;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 
 .header {
     background: linear-gradient(
@@ -36,7 +36,15 @@ body {
 
     color: white;
     text-align: center;
-    padding: 28px 15px;
+    padding: 20px 15px 28px;
+}
+
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: auto;
 }
 
 .header h1 {
@@ -49,7 +57,28 @@ body {
     font-size: 15px;
 }
 
-/* MAIN */
+/* ================= LOGOUT ================= */
+
+.logout-button {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.45);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.logout-button:hover {
+    background: white;
+    color: #2563eb;
+}
+
+/* ================= MAIN ================= */
 
 .container {
     width: 94%;
@@ -73,7 +102,7 @@ body {
     margin-bottom: 25px;
 }
 
-/* LABEL */
+/* ================= LABEL ================= */
 
 label {
     display: block;
@@ -81,7 +110,7 @@ label {
     margin-bottom: 8px;
 }
 
-/* LOCATION */
+/* ================= LOCATION ================= */
 
 .location-box {
     position: relative;
@@ -111,7 +140,7 @@ label {
         );
 }
 
-/* SUGGESTIONS */
+/* ================= SUGGESTIONS ================= */
 
 .suggestions {
     position: absolute;
@@ -123,6 +152,7 @@ label {
     background: white;
 
     border: 1px solid #d1d5db;
+
     border-radius: 9px;
 
     box-shadow:
@@ -133,6 +163,7 @@ label {
     display: none;
 
     max-height: 280px;
+
     overflow-y: auto;
 }
 
@@ -155,7 +186,7 @@ label {
     border-bottom: none;
 }
 
-/* CURRENT LOCATION */
+/* ================= CURRENT LOCATION ================= */
 
 .current-location {
     width: 100%;
@@ -163,12 +194,15 @@ label {
     padding: 14px;
 
     border: none;
+
     border-radius: 9px;
 
     background: #2563eb;
+
     color: white;
 
     font-size: 15px;
+
     font-weight: bold;
 
     cursor: pointer;
@@ -182,10 +216,11 @@ label {
 
 .current-location:disabled {
     background: #93c5fd;
+
     cursor: not-allowed;
 }
 
-/* STATUS */
+/* ================= STATUS ================= */
 
 .location-status {
     text-align: center;
@@ -207,20 +242,23 @@ label {
     font-weight: bold;
 }
 
-/* ROUTE LINE */
+/* ================= ROUTE LINE ================= */
 
 .route-line {
     width: 2px;
+
     height: 25px;
 
     background: #d1d5db;
 
     margin-left: 18px;
+
     margin-top: -10px;
+
     margin-bottom: 5px;
 }
 
-/* VEHICLE */
+/* ================= VEHICLE ================= */
 
 .vehicle-section {
     margin-top: 25px;
@@ -232,13 +270,15 @@ label {
     padding: 14px;
 
     border: 1px solid #d1d5db;
+
     border-radius: 9px;
 
     font-size: 15px;
+
     background: white;
 }
 
-/* VEHICLE CARDS */
+/* ================= VEHICLE CARDS ================= */
 
 .vehicle-cards {
     display: grid;
@@ -287,7 +327,7 @@ label {
     margin-bottom: 5px;
 }
 
-/* INFORMATION */
+/* ================= INFORMATION ================= */
 
 .info {
     margin-top: 25px;
@@ -305,11 +345,13 @@ label {
 
 .info strong {
     display: block;
+
     margin-bottom: 8px;
 }
 
 .info ul {
     margin: 0;
+
     padding-left: 20px;
 
     line-height: 1.7;
@@ -317,7 +359,7 @@ label {
     color: #64748b;
 }
 
-/* COMPARE */
+/* ================= COMPARE ================= */
 
 .compare-button {
     width: 100%;
@@ -327,6 +369,7 @@ label {
     padding: 16px;
 
     border: none;
+
     border-radius: 10px;
 
     background: linear-gradient(
@@ -338,6 +381,7 @@ label {
     color: white;
 
     font-size: 17px;
+
     font-weight: bold;
 
     cursor: pointer;
@@ -349,10 +393,11 @@ label {
 
 .compare-button:disabled {
     opacity: 0.6;
+
     cursor: not-allowed;
 }
 
-/* LOADING */
+/* ================= LOADING ================= */
 
 .loading {
     display: none;
@@ -366,7 +411,7 @@ label {
     margin-top: 12px;
 }
 
-/* FOOTER */
+/* ================= FOOTER ================= */
 
 .footer {
     text-align: center;
@@ -378,12 +423,22 @@ label {
     font-size: 12px;
 }
 
-/* MOBILE */
+/* ================= MOBILE ================= */
 
 @media (max-width: 600px) {
 
     .header h1 {
         font-size: 28px;
+    }
+
+    .header-top {
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+    .logout-button {
+        padding: 9px 15px;
     }
 
     .card {
@@ -394,6 +449,7 @@ label {
         grid-template-columns:
             repeat(2, 1fr);
     }
+
 }
 
 </style>
@@ -402,9 +458,22 @@ label {
 
 <body>
 
+<!-- ================= HEADER ================= -->
+
 <div class="header">
 
-    <h1>🚕 RIDE HUB</h1>
+    <div class="header-top">
+
+        <h1>🚕 RIDE HUB</h1>
+
+        <a
+            href="{{ url_for('logout') }}"
+            class="logout-button"
+        >
+            🚪 Logout
+        </a>
+
+    </div>
 
     <p>
         Compare Rapido • Uber • Ola
@@ -412,6 +481,8 @@ label {
 
 </div>
 
+
+<!-- ================= MAIN ================= -->
 
 <div class="container">
 
@@ -422,7 +493,7 @@ label {
 </div>
 
 
-<!-- PICKUP -->
+<!-- ================= PICKUP ================= -->
 
 <label for="sourceInput">
     📍 Pickup Location
@@ -459,7 +530,7 @@ label {
 >
 
 
-<!-- CURRENT LOCATION -->
+<!-- ================= CURRENT LOCATION ================= -->
 
 <button
     type="button"
@@ -478,7 +549,7 @@ label {
 <div class="route-line"></div>
 
 
-<!-- DESTINATION -->
+<!-- ================= DESTINATION ================= -->
 
 <label for="destinationInput">
     🏁 Destination
@@ -515,7 +586,7 @@ label {
 >
 
 
-<!-- VEHICLE -->
+<!-- ================= VEHICLE ================= -->
 
 <div class="vehicle-section">
 
@@ -557,7 +628,6 @@ label {
     All
 </div>
 
-
 <div
     class="vehicle-card"
     data-value="Bike"
@@ -566,7 +636,6 @@ label {
     Bike
 </div>
 
-
 <div
     class="vehicle-card"
     data-value="Auto"
@@ -574,7 +643,6 @@ label {
     <span class="vehicle-icon">🛺</span>
     Auto
 </div>
-
 
 <div
     class="vehicle-card"
@@ -589,7 +657,7 @@ label {
 </div>
 
 
-<!-- INFORMATION -->
+<!-- ================= INFORMATION ================= -->
 
 <div class="info">
 
@@ -600,33 +668,19 @@ label {
 <ul>
 
 <li>Rapido</li>
-
 <li>Uber</li>
-
 <li>Ola</li>
-
 <li>Bike</li>
-
 <li>Auto</li>
-
 <li>Car</li>
-
 <li>Distance</li>
-
 <li>Travel Time</li>
-
 <li>Estimated Price</li>
-
 <li>Rating</li>
-
 <li>Review</li>
-
 <li>Lowest Price</li>
-
 <li>Fastest Ride</li>
-
 <li>Highest Rated Ride</li>
-
 <li>Overall Best Ride</li>
 
 </ul>
@@ -634,7 +688,7 @@ label {
 </div>
 
 
-<!-- FORM -->
+<!-- ================= FORM ================= -->
 
 <form
     id="rideForm"
@@ -714,56 +768,56 @@ label {
 
 <script>
 
-/* ==========================================
+/* =========================================================
    ELEMENTS
-========================================== */
+========================================================= */
 
 const sourceInput =
-document.getElementById("sourceInput");
+    document.getElementById("sourceInput");
 
 const destinationInput =
-document.getElementById("destinationInput");
+    document.getElementById("destinationInput");
 
 const sourceSuggestions =
-document.getElementById("sourceSuggestions");
+    document.getElementById("sourceSuggestions");
 
 const destinationSuggestions =
-document.getElementById("destinationSuggestions");
+    document.getElementById("destinationSuggestions");
 
 const sourceLat =
-document.getElementById("source_lat");
+    document.getElementById("source_lat");
 
 const sourceLng =
-document.getElementById("source_lng");
+    document.getElementById("source_lng");
 
 const destinationLat =
-document.getElementById("destination_lat");
+    document.getElementById("destination_lat");
 
 const destinationLng =
-document.getElementById("destination_lng");
+    document.getElementById("destination_lng");
 
 const locationButton =
-document.getElementById("locationButton");
+    document.getElementById("locationButton");
 
 const locationStatus =
-document.getElementById("locationStatus");
+    document.getElementById("locationStatus");
 
 const vehicleSelect =
-document.getElementById("vehicleSelect");
+    document.getElementById("vehicleSelect");
 
 const form =
-document.getElementById("rideForm");
+    document.getElementById("rideForm");
 
 const compareButton =
-document.getElementById("compareButton");
+    document.getElementById("compareButton");
 
 const loading =
-document.getElementById("loading");
+    document.getElementById("loading");
 
 
-/* ==========================================
+/* =========================================================
    LOCATION SEARCH
-========================================== */
+========================================================= */
 
 function setupSearch(
     input,
@@ -774,33 +828,29 @@ function setupSearch(
 
     let timer;
 
-
     input.addEventListener(
         "input",
         function() {
 
             clearTimeout(timer);
 
-
             /*
-             * If user changes the text,
-             * old coordinates are removed.
+             * If the user changes the text,
+             * remove the previous coordinates.
              */
 
             latInput.value = "";
             lngInput.value = "";
 
-
             const query =
-            input.value.trim();
+                input.value.trim();
 
-
-            if(query.length < 3) {
+            if (query.length < 3) {
 
                 box.innerHTML = "";
 
                 box.style.display =
-                "none";
+                    "none";
 
                 return;
             }
@@ -812,16 +862,14 @@ function setupSearch(
                     try {
 
                         const response =
-                        await fetch(
-                            "/search_location?q="
-                            +
-                            encodeURIComponent(
-                                query
-                            )
-                        );
+                            await fetch(
+                                "/search_location?q=" +
+                                encodeURIComponent(query)
+                            );
 
 
-                        if(!response.ok) {
+                        if (!response.ok) {
+
                             throw new Error(
                                 "Search failed"
                             );
@@ -829,22 +877,19 @@ function setupSearch(
 
 
                         const places =
-                        await response.json();
+                            await response.json();
 
 
                         box.innerHTML = "";
 
 
-                        if(
-                            !Array.isArray(
-                                places
-                            )
-                            ||
+                        if (
+                            !Array.isArray(places) ||
                             places.length === 0
                         ) {
 
                             box.style.display =
-                            "none";
+                                "none";
 
                             return;
                         }
@@ -854,17 +899,17 @@ function setupSearch(
                             function(place) {
 
                                 const item =
-                                document.createElement(
-                                    "div"
-                                );
+                                    document.createElement(
+                                        "div"
+                                    );
 
 
                                 item.className =
-                                "suggestion";
+                                    "suggestion";
 
 
                                 item.textContent =
-                                place.name;
+                                    "📍 " + place.name;
 
 
                                 item.addEventListener(
@@ -872,48 +917,51 @@ function setupSearch(
                                     function() {
 
                                         input.value =
-                                        place.name;
+                                            place.name;
 
 
                                         latInput.value =
-                                        place.lat;
+                                            place.lat;
 
 
                                         lngInput.value =
-                                        place.lng;
+                                            place.lng;
 
 
                                         box.style.display =
-                                        "none";
+                                            "none";
+
 
                                         box.innerHTML =
-                                        "";
+                                            "";
 
                                     }
                                 );
 
 
-                                box.appendChild(
-                                    item
-                                );
+                                box.appendChild(item);
 
                             }
                         );
 
 
                         box.style.display =
-                        "block";
+                            "block";
 
                     }
-                    catch(error) {
+
+                    catch (error) {
 
                         console.log(
-                            "Search error:",
+                            "Location search error:",
                             error
                         );
 
+
+                        box.innerHTML = "";
+
                         box.style.display =
-                        "none";
+                            "none";
 
                     }
 
@@ -927,7 +975,9 @@ function setupSearch(
 }
 
 
-/* PICKUP SEARCH */
+/* =========================================================
+   PICKUP SEARCH
+========================================================= */
 
 setupSearch(
     sourceInput,
@@ -937,7 +987,9 @@ setupSearch(
 );
 
 
-/* DESTINATION SEARCH */
+/* =========================================================
+   DESTINATION SEARCH
+========================================================= */
 
 setupSearch(
     destinationInput,
@@ -947,192 +999,235 @@ setupSearch(
 );
 
 
-/* ==========================================
-   CURRENT GPS LOCATION
-========================================== */
+/* =========================================================
+   CURRENT LOCATION
+========================================================= */
 
 locationButton.addEventListener(
     "click",
     function() {
 
-
-        if(
-            !navigator.geolocation
-        ) {
+        if (!navigator.geolocation) {
 
             locationStatus.innerText =
-            "❌ GPS is not supported.";
+                "❌ GPS is not supported by this browser.";
 
             locationStatus.className =
-            "location-status error";
+                "location-status error";
 
             return;
         }
 
 
         locationButton.disabled =
-        true;
+            true;
 
 
         locationButton.innerText =
-        "📍 Detecting location...";
+            "📍 Detecting exact location...";
 
 
         locationStatus.innerText =
-        "Please allow location permission.";
+            "Getting your current address...";
 
 
         locationStatus.className =
-        "location-status";
+            "location-status";
 
 
         navigator.geolocation.getCurrentPosition(
 
             async function(position) {
 
-
-                /*
-                 * REAL PHONE GPS
-                 */
-
                 const lat =
-                position.coords.latitude;
+                    position.coords.latitude;
 
                 const lng =
-                position.coords.longitude;
+                    position.coords.longitude;
 
 
                 /*
-                 * Save GPS internally.
+                 * IMPORTANT:
+                 *
+                 * Coordinates are stored only
+                 * in hidden fields.
+                 *
+                 * They will NOT be displayed
+                 * to the user.
                  */
 
                 sourceLat.value =
-                lat;
+                    lat;
 
                 sourceLng.value =
-                lng;
+                    lng;
 
 
                 try {
 
-
-                    /*
-                     * Convert coordinates
-                     * into readable location.
-                     */
-
                     const response =
-                    await fetch(
-                        "/reverse_location?lat="
-                        +
-                        encodeURIComponent(
-                            lat
-                        )
-                        +
-                        "&lng="
-                        +
-                        encodeURIComponent(
-                            lng
-                        )
-                    );
+                        await fetch(
+                            "/reverse_location?lat=" +
+                            encodeURIComponent(lat) +
+                            "&lng=" +
+                            encodeURIComponent(lng)
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Address lookup failed"
+                        );
+                    }
 
 
                     const data =
-                    await response.json();
+                        await response.json();
 
 
-                    sourceInput.value =
-                    data.name
-                    ||
-                    "Current Location";
+                    /*
+                     * DISPLAY ADDRESS ONLY.
+                     */
+
+                    if (
+                        data.name &&
+                        data.name !==
+                        "Current Location"
+                    ) {
+
+                        sourceInput.value =
+                            "📍 " + data.name;
 
 
-                    locationStatus.innerText =
-                    "✅ Current location added as pickup.";
+                        locationStatus.innerText =
+                            "✅ Current location added as pickup.";
 
-                    locationStatus.className =
-                    "location-status success";
 
+                        locationStatus.className =
+                            "location-status success";
+
+                    }
+
+                    else {
+
+                        /*
+                         * Do not show latitude
+                         * or longitude.
+                         */
+
+                        sourceInput.value =
+                            "📍 Current Location";
+
+
+                        locationStatus.innerText =
+                            "⚠️ GPS detected, but the exact address could not be found.";
+
+
+                        locationStatus.className =
+                            "location-status error";
+
+                    }
+
+
+                    /*
+                     * Close suggestions.
+                     */
+
+                    sourceSuggestions.innerHTML =
+                        "";
+
+                    sourceSuggestions.style.display =
+                        "none";
 
                 }
-                catch(error) {
+
+                catch (error) {
+
+                    console.log(
+                        "Reverse location error:",
+                        error
+                    );
 
 
-                    console.log(error);
-
+                    /*
+                     * Never display coordinates.
+                     */
 
                     sourceInput.value =
-                    "Current Location";
+                        "📍 Current Location";
 
 
                     locationStatus.innerText =
-                    "✅ GPS location detected.";
+                        "⚠️ GPS detected, but address lookup failed.";
+
 
                     locationStatus.className =
-                    "location-status success";
+                        "location-status error";
 
                 }
 
 
                 locationButton.disabled =
-                false;
+                    false;
 
 
                 locationButton.innerText =
-                "✅ Current Location Added";
+                    "✅ Current Location Added";
 
             },
 
 
             function(error) {
 
-
                 locationButton.disabled =
-                false;
+                    false;
 
 
                 locationButton.innerText =
-                "📍 Use My Current Location";
+                    "📍 Use My Current Location";
 
 
-                if(error.code === 1) {
+                if (error.code === 1) {
 
                     locationStatus.innerText =
-                    "❌ Location permission denied. Allow location access in Chrome.";
+                        "❌ Location permission denied. Please allow location access.";
 
                 }
 
-                else if(error.code === 2) {
+                else if (error.code === 2) {
 
                     locationStatus.innerText =
-                    "❌ Location unavailable. Turn ON phone Location/GPS.";
+                        "❌ Location unavailable. Turn ON your phone GPS/Location.";
 
                 }
 
-                else if(error.code === 3) {
+                else if (error.code === 3) {
 
                     locationStatus.innerText =
-                    "❌ Location request timed out. Try again.";
+                        "❌ Location request timed out. Please try again.";
 
                 }
 
                 else {
 
                     locationStatus.innerText =
-                    "❌ Could not detect location.";
+                        "❌ Could not detect your location.";
 
                 }
 
 
                 locationStatus.className =
-                "location-status error";
+                    "location-status error";
 
             },
 
 
             {
                 enableHighAccuracy: true,
+
                 timeout: 30000,
+
                 maximumAge: 0
             }
 
@@ -1142,21 +1237,22 @@ locationButton.addEventListener(
 );
 
 
-/* ==========================================
+/* =========================================================
    VEHICLE DROPDOWN
-========================================== */
+========================================================= */
 
 vehicleSelect.addEventListener(
     "change",
     function() {
 
         const value =
-        vehicleSelect.value;
+            vehicleSelect.value;
 
 
         document.getElementById(
             "form_vehicle"
-        ).value = value;
+        ).value =
+            value;
 
 
         document
@@ -1166,9 +1262,9 @@ vehicleSelect.addEventListener(
         .forEach(
             function(card) {
 
-                if(
-                    card.dataset.value
-                    === value
+                if (
+                    card.dataset.value ===
+                    value
                 ) {
 
                     card.classList.add(
@@ -1176,6 +1272,7 @@ vehicleSelect.addEventListener(
                     );
 
                 }
+
                 else {
 
                     card.classList.remove(
@@ -1191,9 +1288,9 @@ vehicleSelect.addEventListener(
 );
 
 
-/* ==========================================
+/* =========================================================
    VEHICLE CARDS
-========================================== */
+========================================================= */
 
 document
 .querySelectorAll(".vehicle-card")
@@ -1205,17 +1302,17 @@ document
             function() {
 
                 const value =
-                card.dataset.value;
+                    card.dataset.value;
 
 
                 vehicleSelect.value =
-                value;
+                    value;
 
 
                 document.getElementById(
                     "form_vehicle"
                 ).value =
-                value;
+                    value;
 
 
                 document
@@ -1244,25 +1341,26 @@ document
 );
 
 
-/* ==========================================
-   CLOSE SUGGESTIONS
-========================================== */
+/* =========================================================
+   CLOSE LOCATION SUGGESTIONS
+========================================================= */
 
 document.addEventListener(
     "click",
     function(event) {
 
-        if(
+        if (
             !event.target.closest(
                 ".location-box"
             )
         ) {
 
             sourceSuggestions.style.display =
-            "none";
+                "none";
+
 
             destinationSuggestions.style.display =
-            "none";
+                "none";
 
         }
 
@@ -1270,62 +1368,96 @@ document.addEventListener(
 );
 
 
-/* ==========================================
+/* =========================================================
    FORM SUBMIT
-========================================== */
+========================================================= */
 
 form.addEventListener(
     "submit",
     function(event) {
 
+        /*
+         * Make sure vehicle is copied.
+         */
+
+        document.getElementById(
+            "form_vehicle"
+        ).value =
+            vehicleSelect.value;
+
 
         /*
-         * Copy visible values.
+         * Copy pickup address.
          */
 
         document.getElementById(
             "form_source"
         ).value =
-        sourceInput.value.trim();
+            sourceInput.value.trim();
 
+
+        /*
+         * Copy destination address.
+         */
 
         document.getElementById(
             "form_destination"
         ).value =
-        destinationInput.value.trim();
+            destinationInput.value.trim();
 
+
+        /*
+         * Copy pickup coordinates.
+         */
 
         document.getElementById(
             "form_source_lat"
         ).value =
-        sourceLat.value;
+            sourceLat.value;
 
 
         document.getElementById(
             "form_source_lng"
         ).value =
-        sourceLng.value;
+            sourceLng.value;
 
+
+        /*
+         * Copy destination coordinates.
+         */
 
         document.getElementById(
             "form_destination_lat"
         ).value =
-        destinationLat.value;
+            destinationLat.value;
 
 
         document.getElementById(
             "form_destination_lng"
         ).value =
-        destinationLng.value;
+            destinationLng.value;
 
 
-        /*
-         * Pickup check.
-         */
+        /* =================================================
+           PICKUP VALIDATION
+        ================================================= */
 
-        if(
-            !sourceLat.value
-            ||
+        if (
+            !sourceInput.value.trim()
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "Please enter or select a pickup location."
+            );
+
+            return;
+        }
+
+
+        if (
+            !sourceLat.value ||
             !sourceLng.value
         ) {
 
@@ -1339,13 +1471,26 @@ form.addEventListener(
         }
 
 
-        /*
-         * Destination check.
-         */
+        /* =================================================
+           DESTINATION VALIDATION
+        ================================================= */
 
-        if(
-            !destinationLat.value
-            ||
+        if (
+            !destinationInput.value.trim()
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "Please enter a destination."
+            );
+
+            return;
+        }
+
+
+        if (
+            !destinationLat.value ||
             !destinationLng.value
         ) {
 
@@ -1359,54 +1504,20 @@ form.addEventListener(
         }
 
 
-        /*
-         * Empty pickup.
-         */
-
-        if(
-            !sourceInput.value.trim()
-        ) {
-
-            event.preventDefault();
-
-            alert(
-                "Please enter pickup location."
-            );
-
-            return;
-        }
-
-
-        /*
-         * Empty destination.
-         */
-
-        if(
-            !destinationInput.value.trim()
-        ) {
-
-            event.preventDefault();
-
-            alert(
-                "Please enter destination."
-            );
-
-            return;
-        }
-
-
-        /*
-         * Loading message.
-         */
+        /* =================================================
+           LOADING
+        ================================================= */
 
         compareButton.disabled =
-        true;
+            true;
+
 
         compareButton.innerText =
-        "⏳ Comparing Rides...";
+            "⏳ Comparing Rides...";
+
 
         loading.style.display =
-        "block";
+            "block";
 
     }
 );

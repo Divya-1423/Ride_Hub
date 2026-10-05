@@ -1,0 +1,616 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Ride Hub - Results</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f6fa;
+    color: #222;
+}
+
+
+/* HEADER */
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 18px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.logout {
+    background: #ef4444;
+    color: white;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: 7px;
+}
+
+
+/* MAIN */
+
+.container {
+    width: 94%;
+    max-width: 1200px;
+    margin: 25px auto;
+}
+
+
+/* TRIP DETAILS */
+
+.trip-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    margin-bottom: 22px;
+}
+
+.trip-box h2 {
+    margin-top: 0;
+}
+
+.trip-details {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.trip-item {
+    padding: 10px 15px;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+
+/* OVERALL */
+
+.overall {
+    background: #111827;
+    color: white;
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.overall h2 {
+    margin-top: 0;
+}
+
+.overall-ride {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.score {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+
+/* HIGHLIGHTS */
+
+.highlights {
+    display: grid;
+    grid-template-columns:
+        repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.highlight {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow:
+        0 3px 10px rgba(0,0,0,0.08);
+}
+
+.highlight h3 {
+    margin-top: 0;
+    font-size: 17px;
+}
+
+.highlight p {
+    margin: 7px 0;
+}
+
+
+/* TABLE */
+
+.table-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow:
+        0 3px 12px rgba(0,0,0,0.08);
+    overflow-x: auto;
+}
+
+.table-box h2 {
+    margin-top: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+th {
+    background: #111827;
+    color: white;
+    padding: 13px;
+    text-align: left;
+}
+
+td {
+    padding: 13px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tr:hover {
+    background: #f8fafc;
+}
+
+
+/* BADGES */
+
+.company {
+    font-weight: bold;
+}
+
+.vehicle {
+    background: #e0f2fe;
+    padding: 5px 9px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.price {
+    font-weight: bold;
+}
+
+.rating {
+    font-weight: bold;
+}
+
+
+/* BEST ROW */
+
+.best-row {
+    background: #ecfdf5;
+}
+
+
+/* BACK BUTTON */
+
+.back-button {
+    display: inline-block;
+    margin-top: 25px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    padding: 11px 20px;
+    border-radius: 8px;
+}
+
+.back-button:hover {
+    background: #1d4ed8;
+}
+
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+
+    .highlights {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        padding: 15px;
+    }
+
+    .logo {
+        font-size: 21px;
+    }
+
+    .container {
+        width: 95%;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="logo">
+        🚕 Ride Hub
+    </div>
+
+    <a href="/logout"
+       class="logout">
+        Logout
+    </a>
+
+</div>
+
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     TRIP DETAILS
+===================================================== -->
+
+<div class="trip-box">
+
+    <h2>🚗 Ride Comparison</h2>
+
+    <div class="trip-details">
+
+        <div class="trip-item">
+            <strong>Pickup:</strong>
+            {{ source }}
+        </div>
+
+        <div class="trip-item">
+            <strong>Destination:</strong>
+            {{ destination }}
+        </div>
+
+        <div class="trip-item">
+            <strong>Vehicle:</strong>
+            {{ vehicle }}
+        </div>
+
+        <div class="trip-item">
+            <strong>Distance:</strong>
+            {{ distance }} km
+        </div>
+
+        <div class="trip-item">
+            <strong>Route Time:</strong>
+            {{ route_time }} min
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     OVERALL BEST
+===================================================== -->
+
+{% if overall %}
+
+<div class="overall">
+
+    <h2>🏆 Best Overall Ride</h2>
+
+    <div class="overall-ride">
+
+        {{ overall.company }}
+        -
+        {{ overall.vehicle }}
+
+    </div>
+
+    <div>
+
+        ₹{{ overall.price }}
+
+        &nbsp; | &nbsp;
+
+        {{ overall.distance }} km
+
+        &nbsp; | &nbsp;
+
+        {{ overall.time }} min
+
+        &nbsp; | &nbsp;
+
+        ⭐ {{ overall.rating }}
+
+    </div>
+
+    <div class="score">
+
+        Overall Score:
+        {{ overall.score }}/100
+
+        &nbsp; | &nbsp;
+
+        {{ overall.review }}
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+<!-- =====================================================
+     HIGHLIGHTS
+===================================================== -->
+
+<div class="highlights">
+
+
+    <!-- LOWEST PRICE -->
+
+    <div class="highlight">
+
+        <h3>💰 Lowest Price</h3>
+
+        <p>
+
+            <strong>
+                {{ lowest_price.company }}
+                -
+                {{ lowest_price.vehicle }}
+            </strong>
+
+        </p>
+
+        <p>
+            ₹{{ lowest_price.price }}
+        </p>
+
+        <p>
+            {{ lowest_price.time }} min
+        </p>
+
+    </div>
+
+
+
+    <!-- FASTEST -->
+
+    <div class="highlight">
+
+        <h3>⚡ Fastest Ride</h3>
+
+        <p>
+
+            <strong>
+                {{ fastest_ride.company }}
+                -
+                {{ fastest_ride.vehicle }}
+            </strong>
+
+        </p>
+
+        <p>
+            {{ fastest_ride.time }} min
+        </p>
+
+        <p>
+            ₹{{ fastest_ride.price }}
+        </p>
+
+    </div>
+
+
+
+    <!-- HIGHEST RATED -->
+
+    <div class="highlight">
+
+        <h3>⭐ Highest Rated</h3>
+
+        <p>
+
+            <strong>
+                {{ highest_rated.company }}
+                -
+                {{ highest_rated.vehicle }}
+            </strong>
+
+        </p>
+
+        <p>
+            ⭐ {{ highest_rated.rating }}
+        </p>
+
+        <p>
+            {{ highest_rated.review }}
+        </p>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     ALL RIDES TABLE
+===================================================== -->
+
+<div class="table-box">
+
+    <h2>🚕 Available Rides</h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Company</th>
+
+                <th>Vehicle</th>
+
+                <th>Price</th>
+
+                <th>Distance</th>
+
+                <th>Time</th>
+
+                <th>Rating</th>
+
+                <th>Review</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+        {% for ride in rides %}
+
+            <tr
+            {% if overall and
+                  ride.company == overall.company and
+                  ride.vehicle == overall.vehicle %}
+                class="best-row"
+            {% endif %}
+            >
+
+                <td class="company">
+
+                    {{ ride.company }}
+
+                    {% if overall and
+                          ride.company == overall.company and
+                          ride.vehicle == overall.vehicle %}
+
+                        🏆
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+
+                    <span class="vehicle">
+
+                        {{ ride.vehicle }}
+
+                    </span>
+
+                </td>
+
+
+                <td class="price">
+
+                    ₹{{ ride.price }}
+
+                </td>
+
+
+                <td>
+
+                    {{ ride.distance }} km
+
+                </td>
+
+
+                <td>
+
+                    {{ ride.time }} min
+
+                </td>
+
+
+                <td class="rating">
+
+                    ⭐ {{ ride.rating }}
+
+                </td>
+
+
+                <td>
+
+                    {{ ride.review }}
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+
+<!-- =====================================================
+     BACK
+===================================================== -->
+
+<a href="/home"
+   class="back-button">
+
+    ← Compare Another Ride
+
+</a>
+
+
+</div>
+
+
+
+<div class="footer">
+
+    Ride Hub — College AI/Data Project
+
+</div>
+
+
+</body>
+
+</html>
