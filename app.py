@@ -776,7 +776,91 @@ def calculate_fare(
 
     return round(fare)
 
+
 # =========================================================
+# TIME CALCULATION
+# =========================================================
+
+TIME_MULTIPLIERS = {
+
+    "Bike": {
+        "Rapido": 0.80,
+        "Uber": 1.10,
+        "Ola": 0.95
+    },
+
+    "Auto": {
+        "Rapido": 0.95,
+        "Uber": 1.25,
+        "Ola": 1.10
+    },
+
+    "Car": {
+        "Rapido": 0.90,
+        "Uber": 1.20,
+        "Ola": 1.05
+    }
+}
+
+
+TIME_OFFSETS = {
+
+    "Bike": {
+        "Rapido": 1,
+        "Uber": 5,
+        "Ola": 3
+    },
+
+    "Auto": {
+        "Rapido": 3,
+        "Uber": 7,
+        "Ola": 5
+    },
+
+    "Car": {
+        "Rapido": 2,
+        "Uber": 6,
+        "Ola": 4
+    }
+}
+
+
+def calculate_time(
+    company,
+    vehicle,
+    route_time,
+    route_factor
+):
+
+    multiplier = TIME_MULTIPLIERS[
+        vehicle
+    ][company]
+
+    offset = TIME_OFFSETS[
+        vehicle
+    ][company]
+
+    route_time_variation = (
+        (
+            route_factor
+            + len(company)
+            + len(vehicle)
+        )
+        % 3
+    ) - 1
+
+    estimated_time = (
+        route_time * multiplier
+        + offset
+        + route_time_variation
+    )
+
+    return max(
+        5,
+        round(estimated_time)
+    )
+
+    # =========================================================
 # COMPARE RIDES
 # =========================================================
 
@@ -829,9 +913,7 @@ def compare():
     # GET PICKUP COORDINATES
     # -----------------------------------------------------
 
-    source_coordinates = get_coordinates(
-        source
-    )
+    source_coordinates = get_coordinates(source)
 
     if not source_coordinates:
 
@@ -855,9 +937,7 @@ def compare():
     # GET DESTINATION COORDINATES
     # -----------------------------------------------------
 
-    destination_coordinates = get_coordinates(
-        destination
-    )
+    destination_coordinates = get_coordinates(destination)
 
     if not destination_coordinates:
 
@@ -951,9 +1031,9 @@ def compare():
 
     rides = []
 
-    # Create a route-specific number.
-    # This makes the simulated prices/time different
-    # for different source and destination locations.
+    # -----------------------------------------------------
+    # ROUTE FACTOR
+    # -----------------------------------------------------
 
     route_text = (
         source.lower()
@@ -966,47 +1046,28 @@ def compare():
         for character in route_text
     )
 
-    # -----------------------------------------------------
+    # =====================================================
     # CREATE ALL RIDES
-    # -----------------------------------------------------
+    # =====================================================
 
     for current_vehicle in vehicles:
 
         for company in companies:
 
-            # -----------------------------
-            # TIME VARIATION
-            # -----------------------------
+            # -------------------------------------------------
+            # DIFFERENT TIME FOR APP + VEHICLE
+            # -------------------------------------------------
 
-            if company == "Rapido":
-
-                time_variation = (
-                    (route_factor * 3 + 1)
-                    % 9
-                ) - 4
-
-            elif company == "Uber":
-
-                time_variation = (
-                    (route_factor * 11 + 4)
-                    % 9
-                ) - 4
-
-            else:
-
-                time_variation = (
-                    (route_factor * 17 + 7)
-                    % 9
-                ) - 4
-
-            ride_time = max(
-                5,
-                duration + time_variation
+            ride_time = calculate_time(
+                company,
+                current_vehicle,
+                duration,
+                route_factor
             )
 
-            # -----------------------------
+            # -------------------------------------------------
             # PRICE
-            # -----------------------------
+            # -------------------------------------------------
 
             fare = calculate_fare(
                 company,
@@ -1015,9 +1076,9 @@ def compare():
                 route_factor
             )
 
-            # -----------------------------
+            # -------------------------------------------------
             # RATING
-            # -----------------------------
+            # -------------------------------------------------
 
             if company == "Rapido":
 
@@ -1061,9 +1122,9 @@ def compare():
                 2
             )
 
-            # -----------------------------
+            # -------------------------------------------------
             # REVIEW
-            # -----------------------------
+            # -------------------------------------------------
 
             if rating >= 4.6:
 
@@ -1080,6 +1141,10 @@ def compare():
             else:
 
                 review = "Average"
+
+            # -------------------------------------------------
+            # ADD RIDE
+            # -------------------------------------------------
 
             rides.append({
 
@@ -1116,9 +1181,9 @@ def compare():
 
     if rides:
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # PRICE RANGE
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         prices = [
             ride["price"]
@@ -1128,9 +1193,9 @@ def compare():
         min_price = min(prices)
         max_price = max(prices)
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # TIME RANGE
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         times = [
             ride["time"]
@@ -1140,9 +1205,9 @@ def compare():
         min_time = min(times)
         max_time = max(times)
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # RATING RANGE
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         ratings = [
             ride["rating"]
@@ -1152,13 +1217,14 @@ def compare():
         min_rating = min(ratings)
         max_rating = max(ratings)
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # BALANCED SCORE
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         for ride in rides:
 
             # PRICE SCORE
+
             if max_price == min_price:
 
                 price_score = 100
@@ -1178,6 +1244,7 @@ def compare():
                 ) * 100
 
             # TIME SCORE
+
             if max_time == min_time:
 
                 time_score = 100
@@ -1197,6 +1264,7 @@ def compare():
                 ) * 100
 
             # RATING SCORE
+
             if max_rating == min_rating:
 
                 rating_score = 100
@@ -1215,11 +1283,9 @@ def compare():
                     )
                 ) * 100
 
-            # Balanced score:
-            #
-            # Price  = 35%
-            # Time   = 30%
-            # Rating = 35%
+            # -------------------------------------------------
+            # FINAL SCORE
+            # -------------------------------------------------
 
             final_score = (
                 price_score * 0.35
@@ -1282,7 +1348,6 @@ def compare():
 
         duration=duration,
 
-        # ONLY ONE OVERALL WINNER
         overall=overall,
 
         overall_suggestion=overall,
